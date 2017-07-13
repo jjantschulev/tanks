@@ -35,11 +35,6 @@ function setup() {
 function draw() {
   background(245);
 
-
-  // Show and update Tank
-  tank.update();
-  tank.show();
-
   //show and update bullets
   for (var i = bullets.length-1; i >= 0; i--) {
     bullets[i].update();
@@ -50,6 +45,11 @@ function draw() {
       bullets.splice(i, 1);
     }
   }
+
+  // Show and update Tank
+  tank.update();
+  tank.show();
+
 
   //respond to held down keys events
   for (var i = 0; i < keys.length; i++) {
@@ -83,6 +83,8 @@ function keyPressLogic(currentKey) {
     tank.gunDir+=0.08;
   }
   if (currentKey == 32) {
-    tank.fire();
+    if(frameCount % 8 == 0){
+      tank.fire();
+    }
   }
 }

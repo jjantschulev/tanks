@@ -10,6 +10,9 @@ function Tank() {
   this.gunDir = 0;
   this.color = "blue";
 
+  this.size = 30;
+  this.health = 100;
+
 
   this.update = function () {
     //block going off the edge
@@ -31,9 +34,9 @@ function Tank() {
     imageMode(CENTER);
     translate(this.x, this.y);
     rotate(this.dir);
-    image(this.body, 0, 0, 30, 30);
+    image(this.body, 0, 0, this.size, this.size);
     rotate(this.gunDir)
-    image(this.gun, 0, -8, 10, 30)
+    image(this.gun, 0, -8, this.size/3, this.size)
     pop();
   }
 
