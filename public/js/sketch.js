@@ -1,7 +1,7 @@
+//Create Array of held down keys
 var keys = []
 window.addEventListener('keydown', function () {
   var addIt = true;
-  console.log('keydown ' + event.which);
   for (var i = 0; i < keys.length; i++) {
     if (keys[i] == event.which) {
       addIt = false;
@@ -13,7 +13,6 @@ window.addEventListener('keydown', function () {
 });
 
 window.addEventListener('keyup', function () {
-  console.log('keyup ' + event.which);
   for (var i = 0; i < keys.length; i++) {
     if (keys[i] == event.which) {
       keys.splice(i, 1);
@@ -21,46 +20,14 @@ window.addEventListener('keyup', function () {
   }
 });
 
-
-var tank = {
-  body: null,
-  gun: null,
-  x: 100,
-  y: 100,
-  speed: 2,
-  dir: 0,
-  gunDir: 0,
-  color: "blue",
-
-
-  update: function () {
-    tank.x = constrain(tank.x, 0, width);
-    tank.y = constrain(tank.y, 0, height);
-
-
-    //Gun follows mouse
-    // var x = mouseX - tank.x;
-    // var y = mouseY - tank.y;
-    // if(y < 0){
-    //   tank.gunDir = -atan(x/y);
-    // }else {
-    //   tank.gunDir = PI-atan(x/y);
-    // }
-
-  },
-
-  show: function () {
-    imageMode(CENTER);
-    translate(tank.x, tank.y);
-    rotate(tank.dir);
-    image(tank.body, 0, 0, 30, 30);
-    rotate(tank.gunDir)
-    image(tank.gun, 0, -8, 10, 30)
-  }
-}
+//initialise tank and bullets array
+var tank = new Tank();
+var bullets = []
 
 function setup() {
   createCanvas(600, 400);
+
+  //load tank images
   tank.body = loadImage("assets/tank_"+tank.color+".png");
   tank.gun = loadImage("assets/gun_"+tank.color+".png");
 }
@@ -68,20 +35,33 @@ function setup() {
 function draw() {
   background(245);
 
+
+  // Show and update Tank
   tank.update();
   tank.show();
 
+  //show and update bullets
+  for (var i = bullets.length-1; i >= 0; i--) {
+    bullets[i].update();
+    bullets[i].show();
+    if(bullets[i].x < -bullets[i].size || bullets[i].x > width+bullets[i].size){
+      bullets.splice(i, 1);
+    }else if(bullets[i].y < -bullets[i].size || bullets[i].y > width+bullets[i].size){
+      bullets.splice(i, 1);
+    }
+  }
+
+  //respond to held down keys events
   for (var i = 0; i < keys.length; i++) {
     keyPressLogic(keys[i]);
   }
-
-
 }
 
 
 
 
 function keyPressLogic(currentKey) {
+  //what program does on different keys
   if(currentKey == 87){
     tank.x+=tank.speed*sin(tank.dir);
     tank.y-=tank.speed*cos(tank.dir);
@@ -101,5 +81,8 @@ function keyPressLogic(currentKey) {
   }
   if(currentKey == 39){
     tank.gunDir+=0.08;
+  }
+  if (currentKey == 32) {
+    tank.fire();
   }
 }
