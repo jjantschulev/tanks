@@ -1,3 +1,4 @@
+
 //Create Array of held down keys
 var keys = []
 window.addEventListener('keydown', function () {
@@ -21,15 +22,18 @@ window.addEventListener('keyup', function () {
 });
 
 //initialise tank and bullets array
-var tank = new Tank();
-var bullets = []
+var tank;
+// var ai;
+
+
+
+var bullets = [];
 
 function setup() {
   createCanvas(600, 400);
 
-  //load tank images
-  tank.body = loadImage("assets/tank_"+tank.color+".png");
-  tank.gun = loadImage("assets/gun_"+tank.color+".png");
+  tank = new Tank(random(width), random(height), getRandomColor());
+  // ai = new Tank(random(width), random(height), getRandomColor());
 }
 
 function draw() {
@@ -51,40 +55,98 @@ function draw() {
   tank.show();
 
 
+  //show ai player
+  // useAi();
+  // ai.update();
+  // ai.show();
+
   //respond to held down keys events
   for (var i = 0; i < keys.length; i++) {
-    keyPressLogic(keys[i]);
+    keyPressLogic(keys[i], tank);
+  }
+
+  //send data to server
+  // var data = {
+  //   x: tank.x,
+  //   y: tank.y,
+  //   dir: tank.dir,
+  //   gunDir: tank.gunDir
+  // }
+}
+
+function keyPressed() {
+  if(key == ' '){
+    tank.fire();
   }
 }
 
 
-
-
-function keyPressLogic(currentKey) {
+function keyPressLogic(currentKey, t) {
   //what program does on different keys
   if(currentKey == 87){
-    tank.x+=tank.speed*sin(tank.dir);
-    tank.y-=tank.speed*cos(tank.dir);
+    t.x+=t.speed*sin(t.dir);
+    t.y-=t.speed*cos(t.dir);
   }
   if(currentKey == 83){
-    tank.x-=tank.speed*sin(tank.dir);
-    tank.y+=tank.speed*cos(tank.dir);
+    t.x-=t.speed*sin(t.dir);
+    t.y+=t.speed*cos(t.dir);
   }
   if(currentKey == 65){
-    tank.dir-=0.08;
+    t.dir-=0.06;
   }
   if(currentKey == 68){
-    tank.dir+=0.08;
+    t.dir+=0.06;
   }
   if(currentKey == 37){
-    tank.gunDir-=0.08;
+    t.gunDir-=0.03;
   }
   if(currentKey == 39){
-    tank.gunDir+=0.08;
+    t.gunDir+=0.03;
   }
   if (currentKey == 32) {
     if(frameCount % 8 == 0){
-      tank.fire();
+      t.fire();
     }
   }
+}
+
+function useAi() {
+  if(dist(ai.x, ai.y, tank.x, tank.y) > 100){
+    keyPressLogic(87, ai);
+  }else {
+    keyPressLogic(83, ai);
+  }
+  if(random()<0.3){
+    keyPressLogic(32, ai);
+  }
+
+  var angleToPlayer = 0;
+  var x = tank.x - ai.x;
+  var y = tank.y - ai.y;
+  if(y < 0){
+    angleToPlayer = -atan(x/y);
+  }else {
+    angleToPlayer = PI-atan(x/y);
+  }
+
+  if(ai.gunDir + ai.dir < angleToPlayer){
+    keyPressLogic(39, ai)
+  }else{
+    keyPressLogic(37, ai)
+  }
+
+  if(ai.dir < angleToPlayer){
+    keyPressLogic(68, ai)
+  }else{
+    keyPressLogic(65, ai)
+  }
+  // ai.gunDir = angleToPlayer;
+
+}
+
+function getRandomColor() {
+  var colors = ["red", "green", "blue"];
+  var c = colors[Math.floor(Math.random()*3)];
+  console.log(c);
+  return c;
 }
