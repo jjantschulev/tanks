@@ -26,18 +26,25 @@ function Tank(x, y, col) {
     //apply damage
     for (var i = 0; i < bullets.length; i++) {
       if(dist(bullets[i].x, bullets[i].y, this.x, this.y)<this.size/2){
-        this.health -= 1;
+        this.health -= 3;
+        this.x += random(-2,2);
+        this.y += random(-2,2);
         bullets.splice(i,1);
       }
     }
 
     //check for 0 health
     if(this.health <= 0){
-      alert("GAME Over, "+this.color+" has died!");
       keys = [];
-      this.health = 100;
-      this.x = random(width);
-      this.y = random(height);
+
+      if(this == tank){
+        // this = null;
+        this.health = 100;
+        this.x = random(width);
+        this.y = random(height);
+
+        alert("GAME OVER!!! YOU DIED!");
+      }
     }
 
     //Gun follows mouse
@@ -59,7 +66,7 @@ function Tank(x, y, col) {
     noStroke()
     fill(map(this.health, 0, 100, 255, 0), map(this.health, 0, 100, 0, 255), 0)
     rectMode(CENTER);
-    rect(0, -30, map(this.health, 0, 100, 0, 30), 3, 3);
+    rect(0, -30, map(this.health, 0, 100, 0, 30), 3);
 
     rotate(this.dir);
     image(this.body, 0, 0, this.size/1.2, this.size);
@@ -70,13 +77,14 @@ function Tank(x, y, col) {
 
   //fire bullets
   this.fire = function () {
-    bullets.push(new Bullet(this.x+22*sin(PI - this.dir - this.gunDir), this.y+22*cos(PI - this.dir - this.gunDir), this.gunDir - PI+this.dir))
-    data = {
-      x: this.x,
-      y: this.y,
-      dir: this.dir,
-      gunDir: this.gunDir
+    var bulletInfo = {
+      x: this.x+22*sin(PI - this.dir - this.gunDir),
+      y: this.y+22*cos(PI - this.dir - this.gunDir),
+      dir: this.gunDir - PI+this.dir
     }
+
+    bullets.push(new Bullet(bulletInfo.x, bulletInfo.y, bulletInfo.dir))
+    socket.emit("shot", bulletInfo);
   }
 }
 
@@ -98,8 +106,3 @@ function Bullet(x, y, d) {
     this.y-=this.speed*cos(this.dir);
   }
 }
-
-//add bullets from other users
-// socket.on("shot", function (data) {
-//   bullets.push(new Bullet(data.x, data.y, data.gunDir - PI+data.dir))
-// })

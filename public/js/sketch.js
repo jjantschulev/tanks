@@ -25,15 +25,18 @@ window.addEventListener('keyup', function () {
 var tank;
 // var ai;
 
-
+var otherTanks = [];
 
 var bullets = [];
 
 function setup() {
   createCanvas(600, 400);
 
+
   tank = new Tank(random(width), random(height), getRandomColor());
   // ai = new Tank(random(width), random(height), getRandomColor());
+
+  socket.emit("newConnected");
 }
 
 function draw() {
@@ -52,11 +55,15 @@ function draw() {
 
   // Show and update Tank
   tank.update();
-  tank.show();
+  // tank.show();
 
+  for (var i = 0; i < otherTanks.length; i++) {
+    otherTanks[i].update();
+    otherTanks[i].show();
+  }
 
   //show ai player
-  // useAi();
+  // useAi(tank);
   // ai.update();
   // ai.show();
 
@@ -110,35 +117,35 @@ function keyPressLogic(currentKey, t) {
   }
 }
 
-function useAi() {
-  if(dist(ai.x, ai.y, tank.x, tank.y) > 100){
-    keyPressLogic(87, ai);
+function useAi(t) {
+  if(dist(t.x, t.y, tank.x, tank.y) > 100){
+    keyPressLogic(87, t);
   }else {
-    keyPressLogic(83, ai);
+    keyPressLogic(83, t);
   }
   if(random()<0.3){
-    keyPressLogic(32, ai);
+    keyPressLogic(32, t);
   }
 
   var angleToPlayer = 0;
-  var x = tank.x - ai.x;
-  var y = tank.y - ai.y;
+  var x = tank.x - t.x;
+  var y = tank.y - t.y;
   if(y < 0){
     angleToPlayer = -atan(x/y);
   }else {
     angleToPlayer = PI-atan(x/y);
   }
 
-  if(ai.gunDir + ai.dir < angleToPlayer){
-    keyPressLogic(39, ai)
+  if(t.gunDir + t.dir < angleToPlayer){
+    keyPressLogic(39, t)
   }else{
-    keyPressLogic(37, ai)
+    keyPressLogic(37, t)
   }
 
-  if(ai.dir < angleToPlayer){
-    keyPressLogic(68, ai)
+  if(t.dir < angleToPlayer){
+    keyPressLogic(68, t)
   }else{
-    keyPressLogic(65, ai)
+    keyPressLogic(65, t)
   }
   // ai.gunDir = angleToPlayer;
 
@@ -150,3 +157,51 @@ function getRandomColor() {
   console.log(c);
   return c;
 }
+
+
+
+//server connection data transfer
+setInterval(function () {
+  data = {
+    x: tank.x,
+    y: tank.y,
+    dir: tank.dir,
+    gunDir: tank.gunDir,
+    health: tank.health
+  }
+  socket.emit("sync", data)
+}, 38)
+
+socket.on("newConnected", function (l) {
+  otherTanks = [];
+  for (var i = 0; i < l; i++) {
+    otherTanks.push(new Tank(0, 0, getRandomColor()));
+  }
+});
+
+socket.on("userDisconnected", function (l) {
+  otherTanks = [];
+  for (var i = 0; i < l; i++) {
+    otherTanks.push(new Tank(0, 0, getRandomColor()));
+  }
+  // for (var i = 0; i < otherTanks.length; i++) {
+  //   if (data.x == otherTanks[i].x &&  data.y == otherTanks[i].y) {
+  //     otherTanks.splice(i, 1);
+  //   }
+  // }
+});
+
+// add bullets from other users
+socket.on("shot", function (data) {
+  bullets.push(new Bullet(data.x, data.y, data.dir))
+})
+
+socket.on("update", function (tanks) {
+  for (var i = 0; i < otherTanks.length; i++) {
+    otherTanks[i].x = tanks[i].x;
+    otherTanks[i].y = tanks[i].y;
+    otherTanks[i].dir = tanks[i].dir;
+    otherTanks[i].gunDir = tanks[i].gunDir;
+    otherTanks[i].health = tanks[i].health;
+  }
+});
