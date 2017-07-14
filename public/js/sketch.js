@@ -1,3 +1,6 @@
+//setup color
+var myColor = getRandomColor();
+
 //setup name
 var name = Cookies.get('name');
 if(name == "undefined"){
@@ -29,18 +32,14 @@ window.addEventListener('keyup', function () {
 
 //initialise tank and bullets array
 var tank;
-// var ai;
-
 var otherTanks = [];
-
 var bullets = [];
 
 function setup() {
   var canvas = createCanvas(600, 600);
   canvas.parent("game");
 
-  tank = new Tank(random(width), random(height), getRandomColor(), "");
-  // ai = new Tank(random(width), random(height), getRandomColor());
+  tank = new Tank(random(width), random(height), "");
 
   socket.emit("newConnected");
 }
@@ -123,40 +122,6 @@ function keyPressLogic(currentKey, t) {
   }
 }
 
-function useAi(t) {
-  if(dist(t.x, t.y, tank.x, tank.y) > 100){
-    keyPressLogic(87, t);
-  }else {
-    keyPressLogic(83, t);
-  }
-  if(random()<0.3){
-    keyPressLogic(32, t);
-  }
-
-  var angleToPlayer = 0;
-  var x = tank.x - t.x;
-  var y = tank.y - t.y;
-  if(y < 0){
-    angleToPlayer = -atan(x/y);
-  }else {
-    angleToPlayer = PI-atan(x/y);
-  }
-
-  if(t.gunDir + t.dir < angleToPlayer){
-    keyPressLogic(39, t)
-  }else{
-    keyPressLogic(37, t)
-  }
-
-  if(t.dir < angleToPlayer){
-    keyPressLogic(68, t)
-  }else{
-    keyPressLogic(65, t)
-  }
-  // ai.gunDir = angleToPlayer;
-
-}
-
 function getRandomColor() {
   var colors = ["yellow", "purple", "red", "green", "blue"];
   var c = colors[Math.floor(Math.random()*2)];
@@ -173,6 +138,7 @@ setInterval(function () {
     dir: tank.dir,
     gunDir: tank.gunDir,
     health: tank.health,
+    color: tank.color,
     name: tank.name
   }
   socket.emit("sync", data)
@@ -181,7 +147,7 @@ setInterval(function () {
 socket.on("newConnected", function (l) {
   otherTanks = [];
   for (var i = 0; i < l; i++) {
-    otherTanks.push(new Tank(0, 0, getRandomColor()));
+    otherTanks.push(new Tank(0, 0, ""));
   }
 });
 
@@ -191,11 +157,6 @@ socket.on("userDisconnected", function (id) {
       otherTanks.splice(i,1);
     }
   }
-  // for (var i = 0; i < otherTanks.length; i++) {
-  //   if (data.x == otherTanks[i].x &&  data.y == otherTanks[i].y) {
-  //     otherTanks.splice(i, 1);
-  //   }
-  // }
 });
 
 // add bullets from other users
@@ -212,5 +173,6 @@ socket.on("update", function (tanks) {
     otherTanks[i].health = tanks[i].health;
     otherTanks[i].id = tanks[i].id;
     otherTanks[i].name = tanks[i].name;
+    otherTanks[i].color = tanks[i].color;
   }
 });

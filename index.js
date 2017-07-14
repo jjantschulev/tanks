@@ -14,7 +14,7 @@ var tanks = []
 
 io.on('connection', function (socket) {
   tanks.push(
-    {id:socket.id,x:0,y:0,dir:0,gunDir:0,health:100,name:"anonym"}
+    {id:socket.id,x:0,y:0,dir:0,gunDir:0,health:100,name:"anonym",color:"purple"}
   );
 
   setInterval(function () {
@@ -36,6 +36,7 @@ io.on('connection', function (socket) {
         tanks[i].gunDir = data.gunDir;
         tanks[i].health = data.health;
         tanks[i].name = data.name;
+        tanks[i].color = data.color;
       }
     }
   });

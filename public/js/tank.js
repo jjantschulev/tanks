@@ -1,5 +1,5 @@
 //Tank Object
-function Tank(x, y, col, id) {
+function Tank(x, y, id) {
   //Setup Variables
   this.id = id;
 
@@ -8,7 +8,7 @@ function Tank(x, y, col, id) {
   this.speed = 1.5;
   this.dir = 0;
   this.gunDir = 0;
-  this.color = col;
+  this.color = myColor;
 
   this.size = 40;
   this.health = 100;
@@ -29,8 +29,8 @@ function Tank(x, y, col, id) {
     for (var i = 0; i < bullets.length; i++) {
       if(dist(bullets[i].x, bullets[i].y, this.x, this.y)<this.size/2){
         this.health -= 3;
-        this.x += random(-2,2);
-        this.y += random(-2,2);
+        this.x += sin(bullets[i].dir);
+        this.y -= cos(bullets[i].dir);
         bullets.splice(i,1);
       }
     }
@@ -38,14 +38,11 @@ function Tank(x, y, col, id) {
     //check for 0 health
     if(this.health <= 0){
       keys = [];
-      this.health = 100;
 
       if(this == tank){
-        // this = null;
         this.health = 100;
         this.x = random(width);
         this.y = random(height);
-
         alert("GAME OVER!!! YOU DIED!");
       }
     }
