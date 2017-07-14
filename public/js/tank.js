@@ -36,6 +36,7 @@ function Tank(x, y, col, id) {
     //check for 0 health
     if(this.health <= 0){
       keys = [];
+      this.health = 100;
 
       if(this == tank){
         // this = null;

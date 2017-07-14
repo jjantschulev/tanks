@@ -1,3 +1,9 @@
+//setup name
+var name = Cookies.get('name');
+if(name == "undefined"){
+  name = prompt("What is you name");
+  Cookies.set('name', name, {expires: 1});
+}
 
 //Create Array of held down keys
 var keys = []
@@ -30,8 +36,8 @@ var otherTanks = [];
 var bullets = [];
 
 function setup() {
-  createCanvas(600, 600);
-
+  var canvas = createCanvas(600, 600);
+  canvas.parent('game');
 
   tank = new Tank(random(width), random(height), getRandomColor(), "");
   // ai = new Tank(random(width), random(height), getRandomColor());
@@ -153,7 +159,7 @@ function useAi(t) {
 
 function getRandomColor() {
   var colors = ["yellow", "purple", "red", "green", "blue"];
-  var c = colors[Math.floor(Math.random()*5)];
+  var c = colors[Math.floor(Math.random()*2)];
   return c;
 }
 

@@ -1,8 +1,31 @@
 body{
   background-color: rgb(245,245,245);
-
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
 }
 
 canvas {
-  margin: 10px;
+  margin: 0;
+}
+
+
+
+#kraken_container {
+  margin: 0;
+  float: left;
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: -1;
+  height: 100vh;
+}
+
+#sketch-holder {
+  margin: 0;
+  float: left;
+  position: relative;
+  top: 0;
+  left: 0;
+
 }
