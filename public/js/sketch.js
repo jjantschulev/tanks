@@ -36,7 +36,7 @@ var bullets = [];
 
 function setup() {
   var canvas = createCanvas(600, 600);
-  canvas.parent("game");
+  // canvas.parent("game");
   tank = new Tank(random(width), random(height), "");
   socket.emit("newConnected");
 }

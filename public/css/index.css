@@ -10,11 +10,11 @@ canvas {
   margin: 10px;
 }
 
-#info {
+#kraken_chat {
   position: absolute;
   top: 0;
-  left: 650px;
-  margin: 20px;
-  z-index: -1;
+  left: 620px;
+  margin: 10px;
+  /*z-index: -1;*/
 
 }
