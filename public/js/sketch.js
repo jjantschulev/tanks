@@ -37,7 +37,7 @@ var bullets = [];
 
 function setup() {
   var canvas = createCanvas(600, 600);
-  canvas.parent('game');
+  canvas.parent("game");
 
   tank = new Tank(random(width), random(height), getRandomColor(), "");
   // ai = new Tank(random(width), random(height), getRandomColor());
@@ -172,7 +172,8 @@ setInterval(function () {
     y: tank.y,
     dir: tank.dir,
     gunDir: tank.gunDir,
-    health: tank.health
+    health: tank.health,
+    name: tank.name
   }
   socket.emit("sync", data)
 }, 38)
@@ -210,5 +211,6 @@ socket.on("update", function (tanks) {
     otherTanks[i].gunDir = tanks[i].gunDir;
     otherTanks[i].health = tanks[i].health;
     otherTanks[i].id = tanks[i].id;
+    otherTanks[i].name = tanks[i].name;
   }
 });

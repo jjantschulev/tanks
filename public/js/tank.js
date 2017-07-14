@@ -13,6 +13,8 @@ function Tank(x, y, col, id) {
   this.size = 40;
   this.health = 100;
 
+  this.name = name;
+
   //images
   this.body = loadImage("/assets/"+this.color+"_body.png");;
   this.gun  = loadImage("/assets/"+this.color+"_gun.png");;
@@ -68,6 +70,12 @@ function Tank(x, y, col, id) {
     fill(map(this.health, 0, 100, 255, 0), map(this.health, 0, 100, 0, 255), 0)
     rectMode(CENTER);
     rect(0, -38, map(this.health, 0, 100, 0, 35), 2);
+
+    //show name
+    fill(100);
+    textSize(8);
+    textAlign(CENTER);
+    text(this.name, 0, -43);
 
     rotate(this.dir);
     image(this.body, 0, 0, this.size/1.1, this.size);
