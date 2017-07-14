@@ -1,5 +1,5 @@
 //setup color
-var myColor = getRandomColor();
+var myColor = "yellow";
 
 //setup name
 var name = Cookies.get('name');
@@ -21,7 +21,6 @@ window.addEventListener('keydown', function () {
     keys.push(event.which);
   }
 });
-
 window.addEventListener('keyup', function () {
   for (var i = 0; i < keys.length; i++) {
     if (keys[i] == event.which) {
@@ -38,9 +37,7 @@ var bullets = [];
 function setup() {
   var canvas = createCanvas(600, 600);
   canvas.parent("game");
-
   tank = new Tank(random(width), random(height), "");
-
   socket.emit("newConnected");
 }
 
