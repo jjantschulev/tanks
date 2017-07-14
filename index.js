@@ -12,11 +12,9 @@ var io = require('socket.io')(server);
 var tanks = []
 
 
-
-
 io.on('connection', function (socket) {
   tanks.push(
-    {id:socket.id,x:0,y:0,dir:0,gunDir:0}
+    {id:socket.id,x:0,y:0,dir:0,gunDir:0,health:100}
   );
 
   setInterval(function () {
@@ -49,10 +47,17 @@ io.on('connection', function (socket) {
   socket.on('disconnect', function () {
     for (var i = 0; i < tanks.length; i++) {
       if(tanks[i].id == socket.id){
-        socket.broadcast.emit("userDisconnected", tanks.length)
-        socket.emit("userDisconnected", tanks.length)
+        socket.broadcast.emit("userDisconnected", socket.id)
+        socket.emit("userDisconnected", socket.id)
         tanks.splice(i, 1);
       }
     }
   })
 });
+
+
+function getRandomColor() {
+  var colors = ["yellow", "purple", "red", "green", "blue"];
+  var c = colors[Math.floor(Math.random()*5)];
+  return c;
+}

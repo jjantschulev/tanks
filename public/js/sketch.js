@@ -30,17 +30,17 @@ var otherTanks = [];
 var bullets = [];
 
 function setup() {
-  createCanvas(600, 400);
+  createCanvas(600, 600);
 
 
-  tank = new Tank(random(width), random(height), getRandomColor());
+  tank = new Tank(random(width), random(height), getRandomColor(), "");
   // ai = new Tank(random(width), random(height), getRandomColor());
 
   socket.emit("newConnected");
 }
 
 function draw() {
-  background(245);
+  background(255);
 
   //show and update bullets
   for (var i = bullets.length-1; i >= 0; i--) {
@@ -152,9 +152,8 @@ function useAi(t) {
 }
 
 function getRandomColor() {
-  var colors = ["red", "green", "blue"];
-  var c = colors[Math.floor(Math.random()*3)];
-  console.log(c);
+  var colors = ["yellow", "purple", "red", "green", "blue"];
+  var c = colors[Math.floor(Math.random()*5)];
   return c;
 }
 
@@ -179,10 +178,11 @@ socket.on("newConnected", function (l) {
   }
 });
 
-socket.on("userDisconnected", function (l) {
-  otherTanks = [];
-  for (var i = 0; i < l; i++) {
-    otherTanks.push(new Tank(0, 0, getRandomColor()));
+socket.on("userDisconnected", function (id) {
+  for (var i = 0; i < otherTanks.length; i++) {
+    if(otherTanks[i].id == id){
+      otherTanks.splice(i,1);
+    }
   }
   // for (var i = 0; i < otherTanks.length; i++) {
   //   if (data.x == otherTanks[i].x &&  data.y == otherTanks[i].y) {
@@ -203,5 +203,6 @@ socket.on("update", function (tanks) {
     otherTanks[i].dir = tanks[i].dir;
     otherTanks[i].gunDir = tanks[i].gunDir;
     otherTanks[i].health = tanks[i].health;
+    otherTanks[i].id = tanks[i].id;
   }
 });

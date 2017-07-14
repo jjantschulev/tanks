@@ -1,10 +1,8 @@
 body{
-  background-color: grey;
+  background-color: rgb(245,245,245);
+
 }
 
 canvas {
-  border-style: solid;
-  border-width: medium;
-  border-color: black;
-  border-radius: 10px;
+  margin: 10px;
 }

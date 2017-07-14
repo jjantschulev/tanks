@@ -1,7 +1,7 @@
 //Tank Object
-function Tank(x, y, col) {
+function Tank(x, y, col, id) {
   //Setup Variables
-
+  this.id = id;
 
   this.x = x;
   this.y = y;
@@ -10,12 +10,12 @@ function Tank(x, y, col) {
   this.gunDir = 0;
   this.color = col;
 
-  this.size = 30;
+  this.size = 40;
   this.health = 100;
 
   //images
-  this.body = loadImage("/assets/tank_"+this.color+".png");;
-  this.gun  = loadImage("/assets/gun_"+this.color+".png");;
+  this.body = loadImage("/assets/"+this.color+"_body.png");;
+  this.gun  = loadImage("/assets/"+this.color+"_gun.png");;
 
 
   this.update = function () {
@@ -23,7 +23,7 @@ function Tank(x, y, col) {
     this.x = constrain(this.x, 0, width);
     this.y = constrain(this.y, 0, height);
 
-    //apply damage
+    //apply damage on hit
     for (var i = 0; i < bullets.length; i++) {
       if(dist(bullets[i].x, bullets[i].y, this.x, this.y)<this.size/2){
         this.health -= 3;
@@ -66,12 +66,12 @@ function Tank(x, y, col) {
     noStroke()
     fill(map(this.health, 0, 100, 255, 0), map(this.health, 0, 100, 0, 255), 0)
     rectMode(CENTER);
-    rect(0, -30, map(this.health, 0, 100, 0, 30), 3);
+    rect(0, -38, map(this.health, 0, 100, 0, 35), 2);
 
     rotate(this.dir);
-    image(this.body, 0, 0, this.size/1.2, this.size);
+    image(this.body, 0, 0, this.size/1.1, this.size);
     rotate(this.gunDir)
-    image(this.gun, 0, -8, this.size/3.2, this.size)
+    image(this.gun, 0, -10, this.size/3.2, this.size)
     pop();
   }
 
