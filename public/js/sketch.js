@@ -1,5 +1,5 @@
 //setup color
-var myColor = "green";
+var myColor = getRandomColor();
 
 //initialise tank and bullets array
 var tank;
@@ -20,6 +20,7 @@ function setup() {
   //create users tank and tell server about new connected user
   tank = new Tank(random(width), random(height), "");
   socket.emit("newConnected");
+  socket.emit("newWorld");
 }
 
 function draw() {
@@ -190,13 +191,17 @@ setInterval(function () {
 }, 38)
 
 //add tank on new connection
-socket.on("newConnected", function (data) {
-  blocks = [];
-  createBlocks(data.blocksId)
+socket.on("newConnected", function (len) {
   otherTanks = [];
-  for (var i = 0; i < data.l; i++) {
+  for (var i = 0; i < len; i++) {
     otherTanks.push(new Tank(0, 0, ""));
   }
+});
+
+//apply new world
+socket.on("newWorld", function (id) {
+  blocks = [];
+  createBlocks(id);
 });
 
 //delete tank on disconnect

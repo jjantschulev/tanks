@@ -54,6 +54,7 @@ function Tank(x, y, id) {
         this.x = random(width);
         this.y = random(height);
         alert("GAME OVER!!! YOU DIED!");
+        socket.emit("newWorld");
       }
     }
   }
