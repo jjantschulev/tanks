@@ -8,7 +8,7 @@ function Tank(x, y, id) {
   this.speed = 1.5;
   this.dir = 0;
   this.gunDir = 0;
-  this.color = myColor;
+  this.col = myColor;
 
   this.size = 40;
   this.health = 100;
@@ -16,9 +16,15 @@ function Tank(x, y, id) {
   this.name = name;
 
   //images
-  this.body = loadImage("/assets/"+this.color+"_body.png");;
-  this.gun  = loadImage("/assets/"+this.color+"_gun.png");;
+  this.body = loadImage("/assets/"+this.col+"_body.png");
+  this.gun  = loadImage("/assets/"+this.col+"_gun.png");
 
+  this.loadGun = function () {
+    this.gun  = loadImage("/assets/"+this.col+"_gun.png");;
+  }
+  this.loadBody = function () {
+    this.body = loadImage("/assets/"+this.col+"_body.png");;
+  }
 
   this.update = function () {
     //block going off the edge

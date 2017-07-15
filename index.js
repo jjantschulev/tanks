@@ -14,7 +14,7 @@ var tanks = []
 
 io.on('connection', function (socket) {
   tanks.push(
-    {id:socket.id,x:0,y:0,dir:0,gunDir:0,health:100,name:"anonym",color:"purple"}
+    {id:socket.id,x:0,y:0,dir:0,gunDir:0,health:100,name:"anonym",col:"purple"}
   );
 
   setInterval(function () {
@@ -25,6 +25,12 @@ io.on('connection', function (socket) {
   socket.on("newConnected", function () {
     socket.emit("newConnected", tanks.length)
     socket.broadcast.emit("newConnected", tanks.length);
+
+    setTimeout(function () {
+      socket.emit("initial-update", tanks)
+      socket.broadcast.emit("initial-update", tanks)
+    }, 80);
+
   })
 
   socket.on('sync', function (data) {
@@ -36,7 +42,7 @@ io.on('connection', function (socket) {
         tanks[i].gunDir = data.gunDir;
         tanks[i].health = data.health;
         tanks[i].name = data.name;
-        tanks[i].color = data.color;
+        tanks[i].col = data.col;
       }
     }
   });
@@ -56,10 +62,3 @@ io.on('connection', function (socket) {
     }
   })
 });
-
-
-function getRandomColor() {
-  var colors = ["yellow", "purple", "red", "green", "blue"];
-  var c = colors[Math.floor(Math.random()*5)];
-  return c;
-}

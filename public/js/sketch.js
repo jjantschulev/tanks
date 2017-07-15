@@ -1,5 +1,5 @@
 //setup color
-var myColor = "yellow";
+var myColor = getRandomColor();
 
 //setup name
 var name = Cookies.get('name');
@@ -125,7 +125,7 @@ function keyPressLogic(currentKey, t) {
 
 function getRandomColor() {
   var colors = ["yellow", "purple", "red", "green", "blue"];
-  var c = colors[Math.floor(Math.random()*2)];
+  var c = colors[Math.floor(Math.random()*5)];
   return c;
 }
 
@@ -139,8 +139,8 @@ setInterval(function () {
     dir: tank.dir,
     gunDir: tank.gunDir,
     health: tank.health,
-    color: tank.color,
-    name: tank.name
+    name: tank.name,
+    col: tank.col
   }
   socket.emit("sync", data)
 }, 38)
@@ -148,7 +148,13 @@ setInterval(function () {
 socket.on("newConnected", function (l) {
   otherTanks = [];
   for (var i = 0; i < l; i++) {
-    otherTanks.push(new Tank(0, 0, ""));
+    newTank = new Tank(0, 0, "");
+
+    // newTank.body = loadImage("/assets/"+newTank.col+"_body.png");;
+    // newTank.gun  = loadImage("/assets/"+newTank.col+"_gun.png");;
+
+    otherTanks.push(newTank);
+
   }
 });
 
@@ -165,6 +171,15 @@ socket.on("shot", function (data) {
   bullets.push(new Bullet(data.x, data.y, data.dir))
 })
 
+socket.on("initial-update", function (data) {
+
+  for (var i = 0; i < otherTanks.length; i++) {
+    otherTanks[i].col = data[i].col;
+    otherTanks[i].loadGun();
+    otherTanks[i].loadBody();
+  }
+})
+
 socket.on("update", function (tanks) {
   for (var i = 0; i < otherTanks.length; i++) {
     otherTanks[i].x = tanks[i].x;
@@ -174,7 +189,6 @@ socket.on("update", function (tanks) {
     otherTanks[i].health = tanks[i].health;
     otherTanks[i].id = tanks[i].id;
     otherTanks[i].name = tanks[i].name;
-    otherTanks[i].color = tanks[i].color;
   }
 });
 
