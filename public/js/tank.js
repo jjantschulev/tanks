@@ -6,7 +6,7 @@ function Tank(x, y, id) {
   //physics variables
   this.x = x;
   this.y = y;
-  this.speed = 1.5;
+  this.speed = 1.6;
   this.dir = 0;
   this.gunDir = 0;
 
@@ -38,8 +38,10 @@ function Tank(x, y, id) {
     for (var i = 0; i < bullets.length; i++) {
       if(dist(bullets[i].x, bullets[i].y, this.x, this.y)<this.size/2){
         this.health -= 3;
-        this.x += sin(bullets[i].dir);
-        this.y -= cos(bullets[i].dir);
+        this.x += random(-0.5,0.5);
+        this.y += random(-0.5,0.5);
+        // this.x += sin(bullets[i].dir);
+        // this.y -= cos(bullets[i].dir);
         bullets.splice(i,1);
       }
     }
@@ -111,5 +113,43 @@ function Bullet(x, y, d) {
   this.update = function () {
     this.x+=this.speed*sin(this.dir);
     this.y-=this.speed*cos(this.dir);
+  }
+}
+
+//block object
+function Block(x, y, w, h) {
+  this.x = x;
+  this.y = y;
+  this.width = w;
+  this.height = h;
+  this.x2 = x+w;
+  this.y2 = y+h;
+
+  this.tankPreviousX = tank.x;
+  this.tankPreviousY = tank.y;
+
+  this.show = function () {
+    noStroke();
+    fill(51);
+    rect(this.x, this.y, this.width, this.height);
+  }
+
+  this.update = function () {
+
+    //stop tanks if they are hitting a block
+    if(tank.x > this.x && tank.x < this.x2 && tank.y > this.y && tank.y < this.y2){
+      tank.x = this.tankPreviousX;
+      tank.y = this.tankPreviousY;
+    }else{
+      this.tankPreviousX = tank.x;
+      this.tankPreviousY = tank.y;
+    }
+
+    //delete bullets if they are inside a block
+    for (var i = 0; i < bullets.length; i++) {
+      if(bullets[i].x > this.x && bullets[i].x < this.x2 && bullets[i].y > this.y && bullets[i].y < this.y2){
+        bullets.splice(i, 1);
+      }
+    }
   }
 }

@@ -6,6 +6,7 @@ var tank;
 var otherTanks = [];
 var bullets = [];
 var useAi = false;
+var blocks = [];
 
 //setup name from cookies. this matches username in kraken chat
 var name = Cookies.get('name');
@@ -19,10 +20,20 @@ function setup() {
   //create users tank and tell server about new connected user
   tank = new Tank(random(width), random(height), "");
   socket.emit("newConnected");
+
+  //create all blocks;
+  blocks.push(new Block(100, 100, 200, 30));
+  blocks.push(new Block(100, 100, 30, 200));
 }
 
 function draw() {
   background(255);
+
+  //show and update blocks
+  for (var i = 0; i < blocks.length; i++) {
+    blocks[i].update();
+    blocks[i].show();
+  }
 
   //show and update bullets
   for (var i = bullets.length-1; i >= 0; i--) {
@@ -42,10 +53,13 @@ function draw() {
   }
   //update tank
   tank.update();
+  tank.show();
 
   for (var i = 0; i < otherTanks.length; i++) {
     otherTanks[i].update();
-    otherTanks[i].show();
+    if (otherTanks[i].id != socket.id) {
+      otherTanks[i].show();
+    }
   }
 
   //respond to held down keys events
@@ -64,26 +78,33 @@ function keyPressed() {
 //what program does on different keys
 function keyPressLogic(currentKey, t) {
   if(currentKey == 87){
+    //w
     t.x+=t.speed*sin(t.dir);
     t.y-=t.speed*cos(t.dir);
   }
   if(currentKey == 83){
+    //s
     t.x-=t.speed*sin(t.dir);
     t.y+=t.speed*cos(t.dir);
   }
   if(currentKey == 65){
+    //a
     t.dir-=0.06;
   }
   if(currentKey == 68){
+    //d
     t.dir+=0.06;
   }
   if(currentKey == 37){
+    //LEFT ARROW
     t.gunDir-=0.03;
   }
   if(currentKey == 39){
+    //RIGHT ARROW
     t.gunDir+=0.03;
   }
   if (currentKey == 32) {
+    //SPACE BAR
     if(frameCount % 8 == 0){
       t.fire();
     }
