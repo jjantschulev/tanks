@@ -1,43 +1,22 @@
 //setup color
 var myColor = getRandomColor();
 
-//setup name
-var name = Cookies.get('name');
-if(name == "undefined"){
-  name = prompt("What is you name");
-  Cookies.set('name', name, {expires: 1});
-}
-
-//Create Array of held down keys
-var keys = []
-window.addEventListener('keydown', function () {
-  var addIt = true;
-  for (var i = 0; i < keys.length; i++) {
-    if (keys[i] == event.which) {
-      addIt = false;
-    }
-  }
-  if (addIt) {
-    keys.push(event.which);
-  }
-});
-window.addEventListener('keyup', function () {
-  for (var i = 0; i < keys.length; i++) {
-    if (keys[i] == event.which) {
-      keys.splice(i, 1);
-    }
-  }
-});
-
 //initialise tank and bullets array
 var tank;
 var otherTanks = [];
 var bullets = [];
 var useAi = false;
 
+//setup name from cookies. this matches username in kraken chat
+var name = Cookies.get('name');
+if(name == "undefined"){
+  name = prompt("What is you name");
+  Cookies.set('name', name, {expires: 1});
+}
+
 function setup() {
-  var canvas = createCanvas(600, 600);
-  // canvas.parent("game");
+  createCanvas(600, 600);
+  //create users tank and tell server about new connected user
   tank = new Tank(random(width), random(height), "");
   socket.emit("newConnected");
 }
@@ -49,6 +28,7 @@ function draw() {
   for (var i = bullets.length-1; i >= 0; i--) {
     bullets[i].update();
     bullets[i].show();
+    //splice bullets if off screen
     if(bullets[i].x < -bullets[i].size || bullets[i].x > width+bullets[i].size){
       bullets.splice(i, 1);
     }else if(bullets[i].y < -bullets[i].size || bullets[i].y > width+bullets[i].size){
@@ -56,46 +36,33 @@ function draw() {
     }
   }
 
-  // Show and update Tank
+  //apply the ai's rules to the users tank
   if(useAi){
     ai(tank);
   }
+  //update tank
   tank.update();
-  // tank.show();
 
   for (var i = 0; i < otherTanks.length; i++) {
     otherTanks[i].update();
     otherTanks[i].show();
   }
 
-  //show ai player
-  // useAi(tank);
-  // ai.update();
-  // ai.show();
-
   //respond to held down keys events
   for (var i = 0; i < keys.length; i++) {
     keyPressLogic(keys[i], tank);
   }
-
-  //send data to server
-  // var data = {
-  //   x: tank.x,
-  //   y: tank.y,
-  //   dir: tank.dir,
-  //   gunDir: tank.gunDir
-  // }
 }
 
+// so the program fires the gun as soon as your touch space
 function keyPressed() {
   if(key == ' '){
     tank.fire();
   }
 }
 
-
+//what program does on different keys
 function keyPressLogic(currentKey, t) {
-  //what program does on different keys
   if(currentKey == 87){
     t.x+=t.speed*sin(t.dir);
     t.y-=t.speed*cos(t.dir);
@@ -123,15 +90,14 @@ function keyPressLogic(currentKey, t) {
   }
 }
 
+//get a random tank colour
 function getRandomColor() {
   var colors = ["yellow", "purple", "red", "green", "blue"];
   var c = colors[Math.floor(Math.random()*5)];
   return c;
 }
 
-
-
-//server connection data transfer
+//sync our tank data with server
 setInterval(function () {
   data = {
     x: tank.x,
@@ -145,19 +111,15 @@ setInterval(function () {
   socket.emit("sync", data)
 }, 38)
 
+//add tank on new connection
 socket.on("newConnected", function (l) {
   otherTanks = [];
   for (var i = 0; i < l; i++) {
-    newTank = new Tank(0, 0, "");
-
-    // newTank.body = loadImage("/assets/"+newTank.col+"_body.png");;
-    // newTank.gun  = loadImage("/assets/"+newTank.col+"_gun.png");;
-
-    otherTanks.push(newTank);
-
+    otherTanks.push(new Tank(0, 0, ""));
   }
 });
 
+//delete tank on disconnect
 socket.on("userDisconnected", function (id) {
   for (var i = 0; i < otherTanks.length; i++) {
     if(otherTanks[i].id == id){
@@ -171,8 +133,8 @@ socket.on("shot", function (data) {
   bullets.push(new Bullet(data.x, data.y, data.dir))
 })
 
+//this is to update the colours
 socket.on("initial-update", function (data) {
-
   for (var i = 0; i < otherTanks.length; i++) {
     otherTanks[i].col = data[i].col;
     otherTanks[i].loadGun();
@@ -180,6 +142,7 @@ socket.on("initial-update", function (data) {
   }
 })
 
+//this is executed at 26 fps
 socket.on("update", function (tanks) {
   for (var i = 0; i < otherTanks.length; i++) {
     otherTanks[i].x = tanks[i].x;
@@ -194,14 +157,7 @@ socket.on("update", function (tanks) {
 
 
 
-
-
-
-
-
-
 // AI STUFF
-
 function ai(ai) {
   ct = findClosestTank(ai);
   if(ct == null){
@@ -226,16 +182,12 @@ function ai(ai) {
   }else{
     keyPressLogic(37, ai)
   }
-
   if(random() < 0.2){
     keyPressLogic(68, ai)
-  }else{
-    // keyPressLogic(65, ai)
   }
-  // ai.gunDir = angleToPlayer;
-
 }
 
+//find the closest tank to the player
 function findClosestTank(t) {
   var ct = null;
   var d = Infinity;
@@ -250,3 +202,25 @@ function findClosestTank(t) {
   }
   return ct;
 }
+
+
+//Create Array of held down keys
+var keys = []
+window.addEventListener('keydown', function () {
+  var addIt = true;
+  for (var i = 0; i < keys.length; i++) {
+    if (keys[i] == event.which) {
+      addIt = false;
+    }
+  }
+  if (addIt) {
+    keys.push(event.which);
+  }
+});
+window.addEventListener('keyup', function () {
+  for (var i = 0; i < keys.length; i++) {
+    if (keys[i] == event.which) {
+      keys.splice(i, 1);
+    }
+  }
+});

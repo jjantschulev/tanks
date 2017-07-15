@@ -3,28 +3,31 @@ function Tank(x, y, id) {
   //Setup Variables
   this.id = id;
 
+  //physics variables
   this.x = x;
   this.y = y;
   this.speed = 1.5;
   this.dir = 0;
   this.gunDir = 0;
-  this.col = myColor;
 
+  //visual vairables
+  this.name = name;
+  this.col = myColor;
   this.size = 40;
   this.health = 100;
-
-  this.name = name;
 
   //images
   this.body = loadImage("/assets/"+this.col+"_body.png");
   this.gun  = loadImage("/assets/"+this.col+"_gun.png");
 
+  //load correct images functions
   this.loadGun = function () {
     this.gun  = loadImage("/assets/"+this.col+"_gun.png");;
   }
   this.loadBody = function () {
     this.body = loadImage("/assets/"+this.col+"_body.png");;
   }
+
 
   this.update = function () {
     //block going off the edge
@@ -44,27 +47,17 @@ function Tank(x, y, id) {
     //check for 0 health
     if(this.health <= 0){
       keys = [];
-
-      if(this == tank){
+      if(this == tank){ // if this tank is the users one
         this.health = 100;
         this.x = random(width);
         this.y = random(height);
         alert("GAME OVER!!! YOU DIED!");
       }
     }
-
-    //Gun follows mouse
-    // var x = mouseX - this.x;
-    // var y = mouseY - this.y;
-    // if(y < 0){
-    //   this.gunDir = -atan(x/y);
-    // }else {
-    //   this.gunDir = PI-atan(x/y);
-    // }
   }
 
   this.show = function () {
-    push();
+    push(); // save matrix
     imageMode(CENTER);
     translate(this.x, this.y);
 
@@ -80,11 +73,12 @@ function Tank(x, y, id) {
     textAlign(CENTER);
     text(this.name, 0, -43);
 
+    //show tank
     rotate(this.dir);
     image(this.body, 0, 0, this.size/1.1, this.size);
     rotate(this.gunDir)
     image(this.gun, 0, -10, this.size/3.2, this.size)
-    pop();
+    pop(); // reset to saved matrix
   }
 
   //fire bullets
@@ -94,12 +88,13 @@ function Tank(x, y, id) {
       y: this.y+22*cos(PI - this.dir - this.gunDir),
       dir: this.gunDir - PI+this.dir
     }
-
-    bullets.push(new Bullet(bulletInfo.x, bulletInfo.y, bulletInfo.dir))
-    socket.emit("shot", bulletInfo);
+    bullets.push(new Bullet(bulletInfo.x, bulletInfo.y, bulletInfo.dir)); //add this bullet to array
+    socket.emit("shot", bulletInfo); //send new bullet data to server
   }
 }
 
+
+//bullet object
 function Bullet(x, y, d) {
   this.x = x;
   this.y = y;
