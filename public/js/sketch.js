@@ -33,6 +33,7 @@ window.addEventListener('keyup', function () {
 var tank;
 var otherTanks = [];
 var bullets = [];
+var useAi = false;
 
 function setup() {
   var canvas = createCanvas(600, 600);
@@ -56,6 +57,9 @@ function draw() {
   }
 
   // Show and update Tank
+  if(useAi){
+    ai(tank);
+  }
   tank.update();
   // tank.show();
 
@@ -173,3 +177,62 @@ socket.on("update", function (tanks) {
     otherTanks[i].color = tanks[i].color;
   }
 });
+
+
+
+
+
+
+
+
+
+// AI STUFF
+
+function ai(ai) {
+  ct = findClosestTank(ai);
+  if(ct == null){
+    return;
+  }
+  keyPressLogic(87, ai);
+  if(true){
+    keyPressLogic(32, ai);
+  }
+
+  var angleToPlayer = 0;
+  var x = ct.x - ai.x;
+  var y = ct.y - ai.y;
+  if(y < 0){
+    angleToPlayer = -atan(x/y);
+  }else {
+    angleToPlayer = PI-atan(x/y);
+  }
+
+  if(ai.gunDir + ai.dir < angleToPlayer){
+    keyPressLogic(39, ai)
+  }else{
+    keyPressLogic(37, ai)
+  }
+
+  if(random() < 0.2){
+    keyPressLogic(68, ai)
+  }else{
+    // keyPressLogic(65, ai)
+  }
+  // ai.gunDir = angleToPlayer;
+
+}
+
+function findClosestTank(t) {
+  var ct = null;
+  var d = Infinity;
+  if (otherTanks.length > 1) {
+    for (var i = 0; i < otherTanks.length; i++) {
+      var newD = dist(otherTanks[i].x, otherTanks[i].y, t.x, t.y);
+      if(newD < d && newD > 10){
+        d = newD;
+        ct = otherTanks[i];
+      }
+    }
+  }
+  return ct;
+}
