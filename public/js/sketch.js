@@ -1,5 +1,5 @@
 //setup color
-var myColor = getRandomColor();
+var myColor = "green";
 
 //initialise tank and bullets array
 var tank;
@@ -20,10 +20,6 @@ function setup() {
   //create users tank and tell server about new connected user
   tank = new Tank(random(width), random(height), "");
   socket.emit("newConnected");
-
-  //create all blocks;
-  blocks.push(new Block(100, 100, 200, 30));
-  blocks.push(new Block(100, 100, 30, 200));
 }
 
 function draw() {
@@ -118,6 +114,67 @@ function getRandomColor() {
   return c;
 }
 
+function createBlocks(index) {
+  switch (index) {
+    case 0:
+      blocks.push(new Block(100, 150, 200, 20));
+      blocks.push(new Block(300,450, 200, 20));
+      blocks.push(new Block(300,150, 20, 100));
+      blocks.push(new Block(300, 350, 20, 100));
+      break;
+    case 1:
+      blocks.push(new Block(100, 140, 80, 20));
+      blocks.push(new Block(200, 140, 80, 20));
+      blocks.push(new Block(300, 140, 80, 20));
+      blocks.push(new Block(400, 140, 80, 20));
+      blocks.push(new Block(100, 440, 80, 20));
+      blocks.push(new Block(200, 440, 80, 20));
+      blocks.push(new Block(300, 440, 80, 20));
+      blocks.push(new Block(400, 440, 80, 20));
+      break;
+    case 2:
+      blocks.push(new Block(100,100,40,40));
+      blocks.push(new Block(350,220,50,50));
+      blocks.push(new Block(160,280,44,44));
+      blocks.push(new Block(440,440,60,60));
+      blocks.push(new Block(500,120,42,42));
+      blocks.push(new Block(120,480,45,45));
+      blocks.push(new Block(300,80,51,51));
+      blocks.push(new Block(270,510,40,40));
+      break;
+    case 3:
+      blocks.push(new Block(100,100,150,20));
+      blocks.push(new Block(100,100, 20, 150));
+      blocks.push(new Block(500,500, -150,20));
+      blocks.push(new Block(500,520, 20,-150));
+      blocks.push(new Block(220,200,180,20));
+      blocks.push(new Block(400,200,20,100));
+      blocks.push(new Block(220,280,20,100));
+      blocks.push(new Block(220,360,180,20));
+      break;
+    case 4:
+      blocks.push(new Block(100,100,40,40));
+      blocks.push(new Block(350,220,50,50));
+      blocks.push(new Block(160,280,44,44));
+      blocks.push(new Block(440,440,60,60));
+      blocks.push(new Block(500,120,42,42));
+      blocks.push(new Block(120,480,45,45));
+      blocks.push(new Block(300,80,51,51));
+      blocks.push(new Block(270,510,40,40));
+      break;
+    case 5:
+
+      break;
+    case 6:
+
+      break;
+    case 7:
+
+      break;
+
+  }
+}
+
 //sync our tank data with server
 setInterval(function () {
   data = {
@@ -133,9 +190,11 @@ setInterval(function () {
 }, 38)
 
 //add tank on new connection
-socket.on("newConnected", function (l) {
+socket.on("newConnected", function (data) {
+  blocks = [];
+  createBlocks(data.blocksId)
   otherTanks = [];
-  for (var i = 0; i < l; i++) {
+  for (var i = 0; i < data.l; i++) {
     otherTanks.push(new Tank(0, 0, ""));
   }
 });

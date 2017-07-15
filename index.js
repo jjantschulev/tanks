@@ -28,8 +28,12 @@ io.on('connection', function (socket) {
 
   //tell client they have sucessfully connected
   socket.on("newConnected", function () {
-    socket.emit("newConnected", tanks.length)
-    socket.broadcast.emit("newConnected", tanks.length);
+    var data = {
+      l: tanks.length,
+      blocksId: Math.floor(Math.random()*5)
+    }
+    socket.emit("newConnected", data)
+    socket.broadcast.emit("newConnected", data);
 
     setTimeout(function () {
       socket.emit("initial-update", tanks)

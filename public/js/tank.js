@@ -79,7 +79,7 @@ function Tank(x, y, id) {
     rotate(this.dir);
     image(this.body, 0, 0, this.size/1.1, this.size);
     rotate(this.gunDir)
-    image(this.gun, 0, -10, this.size/3.2, this.size)
+    image(this.gun, 0, -this.size/4, this.size/3.2, this.size)
     pop(); // reset to saved matrix
   }
 
