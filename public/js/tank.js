@@ -15,6 +15,8 @@ function Tank(x, y, id) {
   this.col = myColor;
   this.size = 40;
   this.health = 100;
+  this.bulletType = 3;
+  this.gunReloaded = 0;
 
   //images
   this.body = loadImage("/assets/"+this.col+"_body.png");
@@ -34,27 +36,46 @@ function Tank(x, y, id) {
     this.x = constrain(this.x, 0, width);
     this.y = constrain(this.y, 0, height);
 
+    //reload gun
+    this.gunReloaded --;
+
+    //eat health packets
+    for (var i = 0; i < healthPackets.length; i++) {
+      if(dist(this.x, this.y, healthPackets[i].x, healthPackets[i].y)<healthPackets[i].size){
+        this.health += 10;
+        healthPackets.splice(i,1);
+        socket.emit("remove_health_packet", i);
+      }
+    }
+
     //apply damage on hit
     for (var i = 0; i < bullets.length; i++) {
       if(dist(bullets[i].x, bullets[i].y, this.x, this.y)<this.size/2){
-        this.health -= 3;
+        this.health -= bullets[i].type; //subtract health
+
+        //check if we died
+        if(this.health <= 0){
+          keys = [];
+          if(this == tank){ // if this tank is the users one
+            this.health = 100;
+            this.x = random(width);
+            this.y = random(height);
+            alert("GAME OVER!!! YOU DIED!");
+            deathData = {
+              name: this.name,
+              killer: bullets[i].owner
+            }
+            socket.emit("death", deathData);
+            socket.emit("newWorld");
+          }
+        }
+
+        //move tank on bullet hit
         this.x += random(-0.5,0.5);
         this.y += random(-0.5,0.5);
         // this.x += sin(bullets[i].dir);
         // this.y -= cos(bullets[i].dir);
         bullets.splice(i,1);
-      }
-    }
-
-    //check for 0 health
-    if(this.health <= 0){
-      keys = [];
-      if(this == tank){ // if this tank is the users one
-        this.health = 100;
-        this.x = random(width);
-        this.y = random(height);
-        alert("GAME OVER!!! YOU DIED!");
-        socket.emit("newWorld");
       }
     }
   }
@@ -89,7 +110,9 @@ function Tank(x, y, id) {
     var bulletInfo = {
       x: this.x+22*sin(PI - this.dir - this.gunDir),
       y: this.y+22*cos(PI - this.dir - this.gunDir),
-      dir: this.gunDir - PI+this.dir
+      dir: this.gunDir - PI+this.dir,
+      owner: this.name,
+      type: this.bulletType
     }
     // bullets.push(new Bullet(bulletInfo.x, bulletInfo.y, bulletInfo.dir)); //add this bullet to array
     socket.emit("shot", bulletInfo); //send new bullet data to server
@@ -98,14 +121,24 @@ function Tank(x, y, id) {
 
 
 //bullet object
-function Bullet(x, y, d) {
+function Bullet(x, y, d, owner, type) {
   this.x = x;
   this.y = y;
   this.speed = 4;
   this.dir = PI+d;
-  this.size = 4;
+  this.size = 3;
+
+  this.owner = owner;
+  this.type = type;
+
+  if (this.type == 10) {
+    this.size = 10;
+  } else if (this.type == 3) {
+    this.size = 5;
+  }
 
   this.show = function () {
+
     fill(0);
     noStroke();
     ellipse(this.x, this.y, this.size, this.size);
@@ -157,5 +190,19 @@ function Block(x, y, w, h) {
         bullets.splice(i, 1);
       }
     }
+  }
+}
+
+function HealthPacket(x, y) {
+  this.x = x;
+  this.y = y;
+  this.size = 20;
+  this.show = function () {
+    fill(0, 255, 0);
+    noStroke();
+    rectMode(CENTER);
+    rect(this.x, this.y, this.size, this.size/4);
+    rect(this.x, this.y, this.size/4, this.size);
+    rectMode(CORNER);
   }
 }

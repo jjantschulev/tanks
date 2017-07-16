@@ -1,4 +1,5 @@
 const PORT = 3012;
+var fs = require('fs');
 
 //setup up standard static file server to send HTML, JS, CSS file to client
 var express = require('express');
@@ -20,11 +21,23 @@ io.on('connection', function (socket) {
     {id:socket.id,x:0,y:0,dir:0,gunDir:0,health:100,name:"anonym",col:"purple"}
   );
 
-  //send tank data to server
+  //send tank data to clients
   setInterval(function () {
     socket.emit("update", tanks)
     socket.broadcast.emit("update", tanks)
   }, 38);
+
+  //send health packets to clients
+  setInterval(function () {
+    if(Math.random() < 0.001){
+      var data = {
+        x: Math.random() * 600,
+        y: Math.random() * 600
+      }
+      socket.emit("new_health_packet", data)
+      socket.broadcast.emit("new_health_packet", data)
+    }
+  }, 1000);
 
   //tell client they have sucessfully connected
   socket.on("newConnected", function () {
@@ -64,6 +77,29 @@ io.on('connection', function (socket) {
   socket.on("shot", function (data) {
     socket.broadcast.emit("shot", data)
     socket.emit("shot", data)
+  })
+
+  //when a client dies
+  socket.on("death", function (deathData) {
+    // console.log(data.killer +" has killed " + data.name);
+
+    fs.readFile("scores.txt", function (err, data) {
+      if (err) {
+        console.log(err);
+      }else{
+        newData = data + "\n" + deathData.killer +" has killed " + deathData.name;
+        fs.writeFile("scores.txt", newData, function (errReading) {
+          if (err) {
+            console.log(err);
+          }
+        })
+      }
+    })
+  });
+
+  socket.on("remove_health_packet", function (index) {
+    socket.broadcast.emit("remove_health_packet", index)
+    socket.emit("remove_health_packet", index)
   })
 
   // remove clients tank on disconnect

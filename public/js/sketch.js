@@ -7,6 +7,7 @@ var otherTanks = [];
 var bullets = [];
 var useAi = false;
 var blocks = [];
+var healthPackets = [];
 
 //setup name from cookies. this matches username in kraken chat
 var name = Cookies.get('name');
@@ -30,6 +31,11 @@ function draw() {
   for (var i = 0; i < blocks.length; i++) {
     blocks[i].update();
     blocks[i].show();
+  }
+
+  //show health packets
+  for (var i = 0; i < healthPackets.length; i++) {
+    healthPackets[i].show();
   }
 
   //show and update bullets
@@ -65,13 +71,6 @@ function draw() {
   }
 }
 
-// so the program fires the gun as soon as your touch space
-function keyPressed() {
-  if(key == ' '){
-    tank.fire();
-  }
-}
-
 //what program does on different keys
 function keyPressLogic(currentKey, t) {
   if(currentKey == 87){
@@ -102,8 +101,14 @@ function keyPressLogic(currentKey, t) {
   }
   if (currentKey == 32) {
     //SPACE BAR
-    if(frameCount % 10 == 0){
-      t.fire();
+    if(t.bulletType == 1){
+      if(frameCount % 8 == 0){
+        t.fire();
+      }
+    }else if (t.bulletType == 3) {
+      if(frameCount % 18 == 0){
+        t.fire();
+      }
     }
   }
 }
@@ -139,13 +144,10 @@ function createBlocks(index) {
       //plus
       blocks.push(new Block(140,50,20,200));
       blocks.push(new Block(50,140,200,20));
-
       blocks.push(new Block(140,350,20,200));
       blocks.push(new Block(50,440,200,20));
-
       blocks.push(new Block(440,50,20,200));
       blocks.push(new Block(350,140,200,20));
-
       blocks.push(new Block(440,350,20,200));
       blocks.push(new Block(350,440,200,20));
       break;
@@ -153,8 +155,8 @@ function createBlocks(index) {
       //shutter
       blocks.push(new Block(100,100,150,20));
       blocks.push(new Block(100,100, 20, 150));
-      blocks.push(new Block(500,500, -150,20));
-      blocks.push(new Block(500,520, 20,-150));
+      blocks.push(new Block(350,500, 150,20));
+      blocks.push(new Block(500,370, 20,150));
       blocks.push(new Block(220,200,180,20));
       blocks.push(new Block(400,200,20,100));
       blocks.push(new Block(220,280,20,100));
@@ -172,7 +174,6 @@ function createBlocks(index) {
       blocks.push(new Block(270,510,40,40));
       break;
     case 5:
-
       break;
     case 6:
 
@@ -223,7 +224,7 @@ socket.on("userDisconnected", function (id) {
 
 // add bullets from other users
 socket.on("shot", function (data) {
-  bullets.push(new Bullet(data.x, data.y, data.dir))
+  bullets.push(new Bullet(data.x, data.y, data.dir, data.owner, data.type))
 })
 
 //this is to update the colours
@@ -247,8 +248,18 @@ socket.on("update", function (tanks) {
     otherTanks[i].name = tanks[i].name;
   }
 });
-
-
+//add health packets
+socket.on("new_health_packet", function (data) {
+  healthPackets.push(new HealthPacket(data.x, data.y));
+})
+// remove health packets
+socket.on("remove_health_packet", function (index) {
+  for (var i = 0; i < healthPackets.length; i++) {
+    if (healthPackets[i] == index) {
+      healthPackets.splice(i, 1);
+    }
+  }
+})
 
 // AI STUFF
 function ai(ai) {
@@ -305,6 +316,25 @@ window.addEventListener('keydown', function () {
   if (addIt) {
     keys.push(event.which);
   }
+
+  if (tank !== null) {
+    //fire heavy duty gun
+    if(event.which == 32){//space bar pressed
+      if(tank.gunReloaded < 0 && tank.bulletType == 10){
+        tank.fire();
+        tank.gunReloaded = 90;
+      }
+    }
+
+    //change bullet type of tank
+    if (event.which == 49){
+      tank.bulletType = 1;
+      console.log("1");
+    }
+    if (event.which == 50){tank.bulletType = 3;}
+    if (event.which == 51){tank.bulletType = 10;}
+  }
+
 });
 window.addEventListener('keyup', function () {
   for (var i = 0; i < keys.length; i++) {
