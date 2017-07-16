@@ -136,6 +136,11 @@ function Block(x, y, w, h) {
   }
 
   this.update = function () {
+    //prevent getting stuck in a block
+    if(this.tankPreviousX + tank.size/3 > this.x && this.tankPreviousX - tank.size/3 < this.x2 && this.tankPreviousY + tank.size/3 > this.y && this.tankPreviousY - tank.size/3 < this.y2){
+      this.tankPreviousX = random(width);
+      this.tankPreviousY = random(height);
+    }
 
     //stop tanks if they are hitting a block
     if(tank.x + tank.size/3 > this.x && tank.x - tank.size/3 < this.x2 && tank.y + tank.size/3 > this.y && tank.y - tank.size/3 < this.y2){
