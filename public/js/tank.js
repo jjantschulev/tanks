@@ -71,11 +71,10 @@ function Tank(x, y, id) {
         }
 
         //move tank on bullet hit
-        this.x += random(-0.5,0.5);
-        this.y += random(-0.5,0.5);
-        // this.x += sin(bullets[i].dir);
-        // this.y -= cos(bullets[i].dir);
+        this.x += 0.5*bullets[i].type*sin(bullets[i].dir);
+        this.y -= 0.5*bullets[i].type*cos(bullets[i].dir);
         bullets.splice(i,1);
+
       }
     }
   }
