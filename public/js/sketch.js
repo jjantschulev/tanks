@@ -102,7 +102,7 @@ function keyPressLogic(currentKey, t) {
   }
   if (currentKey == 32) {
     //SPACE BAR
-    if(frameCount % 8 == 0){
+    if(frameCount % 10 == 0){
       t.fire();
     }
   }
@@ -110,20 +110,22 @@ function keyPressLogic(currentKey, t) {
 
 //get a random tank colour
 function getRandomColor() {
-  var colors = ["yellow", "purple", "red", "green", "blue"];
-  var c = colors[Math.floor(Math.random()*5)];
+  var colors = ["purple", "red", "green"];
+  var c = colors[Math.floor(Math.random()*3)];
   return c;
 }
 
 function createBlocks(index) {
   switch (index) {
     case 0:
+      //double l
       blocks.push(new Block(100, 150, 200, 20));
       blocks.push(new Block(300,450, 200, 20));
       blocks.push(new Block(300,150, 20, 100));
       blocks.push(new Block(300, 350, 20, 100));
       break;
     case 1:
+      //dotted line
       blocks.push(new Block(100, 140, 80, 20));
       blocks.push(new Block(200, 140, 80, 20));
       blocks.push(new Block(300, 140, 80, 20));
@@ -134,16 +136,21 @@ function createBlocks(index) {
       blocks.push(new Block(400, 440, 80, 20));
       break;
     case 2:
-      blocks.push(new Block(100,100,40,40));
-      blocks.push(new Block(350,220,50,50));
-      blocks.push(new Block(160,280,44,44));
-      blocks.push(new Block(440,440,60,60));
-      blocks.push(new Block(500,120,42,42));
-      blocks.push(new Block(120,480,45,45));
-      blocks.push(new Block(300,80,51,51));
-      blocks.push(new Block(270,510,40,40));
+      //plus
+      blocks.push(new Block(140,50,20,200));
+      blocks.push(new Block(50,140,200,20));
+
+      blocks.push(new Block(140,350,20,200));
+      blocks.push(new Block(50,440,200,20));
+
+      blocks.push(new Block(440,50,20,200));
+      blocks.push(new Block(350,140,200,20));
+
+      blocks.push(new Block(440,350,20,200));
+      blocks.push(new Block(350,440,200,20));
       break;
     case 3:
+      //shutter
       blocks.push(new Block(100,100,150,20));
       blocks.push(new Block(100,100, 20, 150));
       blocks.push(new Block(500,500, -150,20));
@@ -154,6 +161,7 @@ function createBlocks(index) {
       blocks.push(new Block(220,360,180,20));
       break;
     case 4:
+      //ppp-pokerface
       blocks.push(new Block(100,100,40,40));
       blocks.push(new Block(350,220,50,50));
       blocks.push(new Block(160,280,44,44));
@@ -248,9 +256,8 @@ function ai(ai) {
   if(ct == null){
     return;
   }
-  keyPressLogic(87, ai);
   if(true){
-    keyPressLogic(32, ai);
+    // keyPressLogic(32, ai);
   }
 
   var angleToPlayer = 0;
@@ -266,9 +273,6 @@ function ai(ai) {
     keyPressLogic(39, ai)
   }else{
     keyPressLogic(37, ai)
-  }
-  if(random() < 0.2){
-    keyPressLogic(68, ai)
   }
 }
 

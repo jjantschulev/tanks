@@ -18,11 +18,11 @@ function Tank(x, y, id) {
 
   //images
   this.body = loadImage("/assets/"+this.col+"_body.png");
-  this.gun  = loadImage("/assets/"+this.col+"_gun.png");
+  this.gun  = loadImage("/assets/gun.png");
 
   //load correct images functions
   this.loadGun = function () {
-    this.gun  = loadImage("/assets/"+this.col+"_gun.png");;
+    this.gun  = loadImage("/assets/gun.png");;
   }
   this.loadBody = function () {
     this.body = loadImage("/assets/"+this.col+"_body.png");;
@@ -78,9 +78,9 @@ function Tank(x, y, id) {
 
     //show tank
     rotate(this.dir);
-    image(this.body, 0, 0, this.size/1.1, this.size);
+    image(this.body, 0, 0, this.size, this.size);
     rotate(this.gunDir)
-    image(this.gun, 0, -this.size/4, this.size/3.2, this.size)
+    image(this.gun, 0, -this.size/4, this.size, this.size)
     pop(); // reset to saved matrix
   }
 
@@ -91,7 +91,7 @@ function Tank(x, y, id) {
       y: this.y+22*cos(PI - this.dir - this.gunDir),
       dir: this.gunDir - PI+this.dir
     }
-    bullets.push(new Bullet(bulletInfo.x, bulletInfo.y, bulletInfo.dir)); //add this bullet to array
+    // bullets.push(new Bullet(bulletInfo.x, bulletInfo.y, bulletInfo.dir)); //add this bullet to array
     socket.emit("shot", bulletInfo); //send new bullet data to server
   }
 }
@@ -103,7 +103,7 @@ function Bullet(x, y, d) {
   this.y = y;
   this.speed = 4;
   this.dir = PI+d;
-  this.size = 3;
+  this.size = 4;
 
   this.show = function () {
     fill(0);
@@ -138,7 +138,7 @@ function Block(x, y, w, h) {
   this.update = function () {
 
     //stop tanks if they are hitting a block
-    if(tank.x > this.x && tank.x < this.x2 && tank.y > this.y && tank.y < this.y2){
+    if(tank.x + tank.size/3 > this.x && tank.x - tank.size/3 < this.x2 && tank.y + tank.size/3 > this.y && tank.y - tank.size/3 < this.y2){
       tank.x = this.tankPreviousX;
       tank.y = this.tankPreviousY;
     }else{
