@@ -67,8 +67,11 @@ function draw() {
   }
 
   //show explosions
-  for (var i = 0; i < explosions.length; i++) {
+  for (var i = explosions.length-1; i >= 0; i--) {
     explosions[i].use();
+    if(explosions[i].timer < 0){
+      explosions.splice(i, 1);
+    }
   }
 
   //respond to held down keys events

@@ -52,7 +52,7 @@ function Tank(x, y, id) {
     for (var i = 0; i < bullets.length; i++) {
       if(dist(bullets[i].x, bullets[i].y, this.x, this.y)<this.size/2){
         this.health -= bullets[i].type; //subtract health
-        explosions.push(new Explosion(bullets[i].x, bullets[i].y));
+        explosions.push(new Explosion(bullets[i].x, bullets[i].y, bullets[i].size));
         //check if we died
         if(this.health <= 0){
           keys = [];
@@ -214,16 +214,17 @@ function HealthPacket(x, y) {
 
 
 //make explosions
-function Explosion(x, y) {
+function Explosion(x, y, s) {
   this.x = x;
   this.y = y;
   this.timer = 20;
-  this.size = 4;
+  this.size = s;
   this.alpha = 100;
 
   this.use = function () {
     this.size++;
-    this.alpha -= 100/this.timer;
+    this.timer--;
+    this.alpha -= 5;
     fill(255, 150, 0, this.alpha);
     ellipse(this.x, this.y, this.size, this.size);
   }
