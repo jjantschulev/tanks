@@ -8,6 +8,7 @@ var bullets = [];
 var useAi = false;
 var blocks = [];
 var healthPackets = [];
+var explosions = [];
 
 //setup name from cookies. this matches username in kraken chat
 var name = Cookies.get('name');
@@ -63,6 +64,11 @@ function draw() {
     if (otherTanks[i].id != socket.id) {
       otherTanks[i].show();
     }
+  }
+
+  //show explosions
+  for (var i = 0; i < explosions.length; i++) {
+    explosions[i].use();
   }
 
   //respond to held down keys events
