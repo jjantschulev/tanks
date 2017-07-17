@@ -80,24 +80,24 @@ function keyPressLogic(currentKey, t) {
   }
   if(currentKey == 83){
     //s
-    t.x-=t.speed*sin(t.dir);
-    t.y+=t.speed*cos(t.dir);
+    t.x-=t.speed/2*sin(t.dir);
+    t.y+=t.speed/2*cos(t.dir);
   }
   if(currentKey == 65){
     //a
-    t.dir-=0.06;
+    t.dir-=0.05;
   }
   if(currentKey == 68){
     //d
-    t.dir+=0.06;
+    t.dir+=0.05;
   }
   if(currentKey == 37){
     //LEFT ARROW
-    t.gunDir-=0.03;
+    t.gunDir-=0.028;
   }
   if(currentKey == 39){
     //RIGHT ARROW
-    t.gunDir+=0.03;
+    t.gunDir+=0.028;
   }
   if (currentKey == 32) {
     //SPACE BAR
@@ -174,14 +174,13 @@ function createBlocks(index) {
       blocks.push(new Block(270,510,40,40));
       break;
     case 5:
+      //vertical lines
+      blocks.push(new Block(100, 100, 20, 150));
+      blocks.push(new Block(100, 350, 20, 150));
+      blocks.push(new Block(500, 100, 20, 150));
+      blocks.push(new Block(500, 350, 20, 150));
+      blocks.push(new Block(300, 200, 20, 200));
       break;
-    case 6:
-
-      break;
-    case 7:
-
-      break;
-
   }
 }
 
@@ -303,6 +302,14 @@ function findClosestTank(t) {
   return ct;
 }
 
+function keyPressed() {
+  if(key == " "){
+    if(tank.bulletType != 10){
+      tank.fire();
+    }
+  }
+}
+
 
 //Create Array of held down keys
 var keys = []
@@ -322,15 +329,12 @@ window.addEventListener('keydown', function () {
     if(event.which == 32){//space bar pressed
       if(tank.gunReloaded < 0 && tank.bulletType == 10){
         tank.fire();
-        tank.gunReloaded = 90;
+        tank.gunReloaded = 120;
       }
     }
 
     //change bullet type of tank
-    if (event.which == 49){
-      tank.bulletType = 1;
-      console.log("1");
-    }
+    if (event.which == 49){tank.bulletType = 1;}
     if (event.which == 50){tank.bulletType = 3;}
     if (event.which == 51){tank.bulletType = 10;}
   }

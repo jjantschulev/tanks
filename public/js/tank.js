@@ -6,7 +6,7 @@ function Tank(x, y, id) {
   //physics variables
   this.x = x;
   this.y = y;
-  this.speed = 1.6;
+  this.speed = 1.8;
   this.dir = 0;
   this.gunDir = 0;
 
@@ -62,8 +62,8 @@ function Tank(x, y, id) {
             this.y = random(height);
             alert("GAME OVER!!! YOU DIED!");
             deathData = {
-              name: this.name,
-              killer: bullets[i].owner
+              name: this.name.toLowerCase(),
+              killer: bullets[i].owner.toLowerCase()
             }
             socket.emit("death", deathData);
             socket.emit("newWorld");
@@ -88,13 +88,19 @@ function Tank(x, y, id) {
     noStroke()
     fill(map(this.health, 0, 100, 255, 0), map(this.health, 0, 100, 0, 255), 0)
     rectMode(CENTER);
-    rect(0, -38, map(this.health, 0, 100, 0, 35), 2);
+    rect(0, -35, map(this.health, 0, 100, 0, 35), 2);
+
+    //show gun reloading bar
+    if(this.bulletType == 10 && this.gunReloaded >=0){
+      fill(100);
+      rect(0, -30, map(this.gunReloaded, 0, 120, 0, 30), 1);
+    }
 
     //show name
     fill(100);
     textSize(8);
     textAlign(CENTER);
-    text(this.name, 0, -43);
+    text(this.name, 0, -40);
 
     //show tank
     rotate(this.dir);
@@ -169,7 +175,7 @@ function Block(x, y, w, h) {
 
   this.update = function () {
     //prevent getting stuck in a block
-    if(this.tankPreviousX + tank.size/3 > this.x && this.tankPreviousX - tank.size/3 < this.x2 && this.tankPreviousY + tank.size/3 > this.y && this.tankPreviousY - tank.size/3 < this.y2){
+    if(this.tankPreviousX + tank.size/3 >= this.x && this.tankPreviousX - tank.size/3 <= this.x2 && this.tankPreviousY + tank.size/3 >= this.y && this.tankPreviousY - tank.size/3 <= this.y2){
       this.tankPreviousX = random(width);
       this.tankPreviousY = random(height);
     }
