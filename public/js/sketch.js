@@ -268,7 +268,7 @@ function ai(ai) {
     return;
   }
   if(true){
-    // keyPressLogic(32, ai);
+    keyPressLogic(32, ai);
   }
 
   var angleToPlayer = 0;

@@ -12,7 +12,8 @@ console.log('server running on port: ' + PORT);
 var io = require('socket.io')(server);
 
 //game Variables
-var tanks = []
+var tanks = [];
+var scores = JSON.parse(fs.readFileSync('scores.json', 'utf8'));
 
 //when new user connects:
 io.on('connection', function (socket) {
@@ -82,19 +83,41 @@ io.on('connection', function (socket) {
   //when a client dies
   socket.on("death", function (deathData) {
     // console.log(data.killer +" has killed " + data.name);
-
-    fs.readFile("scores.txt", function (err, data) {
-      if (err) {
-        console.log(err);
-      }else{
-        newData = data + "\n" + deathData.killer +" has killed " + deathData.name;
-        fs.writeFile("scores.txt", newData, function (errReading) {
-          if (err) {
-            console.log(err);
-          }
-        })
+    var foundKillerMatch = false;
+    var foundLostMatch = false;
+    for (var i = 0; i < scores.length; i++) {
+      if (scores[i].name == deathData.killer) {
+        scores[i].won += 1;
+        foundKillerMatch = true;
       }
-    })
+      if (scores[i].name == deathData.name) {
+        scores[i].lost += 1;
+        foundLostMatch = true;
+      }
+    }
+
+    if (!foundKillerMatch) {
+      var newPerson = {
+        name: deathData.killer,
+        lost: 0,
+        won: 1
+      }
+      scores.push(newPerson);
+    }
+    if (!foundLostMatch) {
+      var newPerson = {
+        name: deathData.name,
+        lost: 1,
+        won: 0
+      }
+      scores.push(newPerson);
+    }
+    dataToWrite = JSON.stringify(scores);
+    fs.writeFile("scores.json", dataToWrite, function(err) {
+      if(err) {
+        return console.log(err);
+      }
+    });
   });
 
   socket.on("remove_health_packet", function (index) {
