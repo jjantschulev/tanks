@@ -26,7 +26,7 @@ io.on('connection', function (socket) {
   setInterval(function () {
     socket.emit("update", tanks)
     socket.broadcast.emit("update", tanks)
-  }, 50);
+  }, 40);
 
   //send health packets to clients
   setInterval(function () {
@@ -85,7 +85,6 @@ io.on('connection', function (socket) {
   socket.on("death", function (deathData) {
     for (var i = 0; i < tanks.length; i++) {
       if (tanks[i].name.toLowerCase() == deathData.killer) {
-        tanks[i].health = 100;
         io.to(tanks[i].id).emit("reset-health");
       }
     }

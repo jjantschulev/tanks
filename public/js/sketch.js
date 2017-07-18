@@ -90,14 +90,14 @@ function draw() {
 
   if(tank.deactivated){
     var seconds = tank.deactivatedTimer / 60;
-    fill(0, 80);
+    fill(0, 97);
     rect(0, 0, width, height);
     fill(255);
     textAlign(CENTER, CENTER);
-    textSize(30);
-    text("YOU DIED", width/2, height/2);
-    textSize(20);
-    text("respawning in " + Math.ceil(seconds) + " seconds.", width/2, height/2 + 75);
+    textSize(50);
+    text("YOU DIED", width/2, height/2 - 30);
+    textSize(25);
+    text("respawning in " + Math.ceil(seconds) + " seconds.", width/2, height/2 + 30);
   }
 
 }
@@ -162,7 +162,7 @@ setInterval(function () {
     deactivated: tank.deactivated
   }
   socket.emit("sync", data)
-}, 50)
+}, 40)
 
 //add tank on new connection
 socket.on("newConnected", function (len) {

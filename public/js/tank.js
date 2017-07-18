@@ -22,7 +22,7 @@ function Tank(x, y, id) {
 
   //images
   this.body = loadImage("/assets/"+this.col+"_body.png");
-  this.greyBody = loadImage("/assets/"+this.col+"_body_grey.png");
+  // this.greyBody = loadImage("/assets/"+this.col+"_body_grey.png");
   this.gun  = loadImage("/assets/gun.png");
 
   //load correct images functions
@@ -31,7 +31,7 @@ function Tank(x, y, id) {
   }
   this.loadBody = function () {
     this.body = loadImage("/assets/"+this.col+"_body.png");
-    this.greyBody = loadImage("/assets/"+this.col+"_body_grey.png");
+    // this.greyBody = loadImage("/assets/"+this.col+"_body_grey.png");
   }
 
 
@@ -101,6 +101,8 @@ function Tank(x, y, id) {
   }
 
   this.show = function () {
+    if(this.deactivated){return;}
+
     push(); // save matrix
     imageMode(CENTER);
     translate(this.x, this.y);
@@ -130,7 +132,7 @@ function Tank(x, y, id) {
     //show tank
     rotate(this.dir);
     if(this.deactivated){
-      image(this.greyBody, 0, 0, this.size, this.size);
+      // image(this.greyBody, 0, 0, this.size, this.size);
     }else {
       image(this.body, 0, 0, this.size, this.size);
     }
