@@ -92,8 +92,13 @@ function Tank(x, y, id) {
         }
 
         //move tank on bullet hit
-        this.x += 0.5*bullets[i].type*sin(bullets[i].dir);
-        this.y -= 0.5*bullets[i].type*cos(bullets[i].dir);
+        if (bullets[i].type == 20) {
+          this.x += 20*bullets[i].type*sin(bullets[i].dir);
+          this.y -= 20*bullets[i].type*cos(bullets[i].dir);
+        }else {
+          this.x += 0.5*bullets[i].type*sin(bullets[i].dir);
+          this.y -= 0.5*bullets[i].type*cos(bullets[i].dir);
+        }
         bullets.splice(i,1);
 
       }
@@ -162,15 +167,15 @@ function Bullet(x, y, d, owner, type) {
   this.y = y;
   this.speed = 4;
   this.dir = PI+d;
-  this.size = 3;
+  this.size = type;
 
   this.owner = owner;
   this.type = type;
 
-  if (this.type == 10) {
-    this.size = 10;
-  } else if (this.type == 3) {
+  if (this.type == 3) {
     this.size = 5;
+  } else if (this.type == 1) {
+    this.size = 3;
   }
 
   this.show = function () {

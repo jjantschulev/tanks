@@ -134,7 +134,8 @@ function keyPressLogic(currentKey, t) {
     //SPACE BAR
     if (tank.gunReloaded <= 0) {
       tank.fire();
-      if(tank.bulletType == 10){tank.gunReloaded = 120}
+      if(tank.bulletType == 20){tank.gunReloaded = 280}
+      if(tank.bulletType == 10){tank.gunReloaded = 100}
       if(tank.bulletType == 3){tank.gunReloaded = 18}
       if(tank.bulletType == 1){tank.gunReloaded = 8}
     }
@@ -291,6 +292,7 @@ window.addEventListener('keydown', function () {
     if (event.which == 49){tank.bulletType = 1;}
     if (event.which == 50){tank.bulletType = 3;}
     if (event.which == 51){tank.bulletType = 10;}
+    if (event.which == 52){tank.bulletType = 20;}
   }
 
 });
