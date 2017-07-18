@@ -17,9 +17,12 @@ function Tank(x, y, id) {
   this.health = 100;
   this.bulletType = 3;
   this.gunReloaded = 0;
+  this.deactivated = false;
+  this.deactivatedTimer = 0;
 
   //images
   this.body = loadImage("/assets/"+this.col+"_body.png");
+  this.greyBody = loadImage("/assets/"+this.col+"_body_grey.png");
   this.gun  = loadImage("/assets/gun.png");
 
   //load correct images functions
@@ -27,7 +30,8 @@ function Tank(x, y, id) {
     this.gun  = loadImage("/assets/gun.png");;
   }
   this.loadBody = function () {
-    this.body = loadImage("/assets/"+this.col+"_body.png");;
+    this.body = loadImage("/assets/"+this.col+"_body.png");
+    this.greyBody = loadImage("/assets/"+this.col+"_body_grey.png");
   }
 
 
@@ -36,6 +40,19 @@ function Tank(x, y, id) {
     this.x = constrain(this.x, 0, width);
     this.y = constrain(this.y, 0, height);
 
+    if (this == tank) {
+      if (this.deactivatedTimer > 0) {
+        this.deactivated = true;
+        this.deactivatedTimer--;
+      }else{
+        this.deactivated = false;
+      }
+    }
+
+    if(this.deactivated){
+      return;
+    }
+
     //reload gun
     this.gunReloaded --;
 
@@ -43,6 +60,9 @@ function Tank(x, y, id) {
     for (var i = 0; i < healthPackets.length; i++) {
       if(dist(this.x, this.y, healthPackets[i].x, healthPackets[i].y)<healthPackets[i].size){
         this.health += 10;
+        if (this.health > 100) {
+          this.health = 100;
+        }
         healthPackets.splice(i,1);
         socket.emit("remove_health_packet", i);
       }
@@ -55,18 +75,19 @@ function Tank(x, y, id) {
         explosions.push(new Explosion(bullets[i].x, bullets[i].y, bullets[i].size));//make Explosion
         //check if we died
         if(this.health <= 0){
+          this.health = 100;
           keys = [];
           if(this == tank){ // if this tank is the users one
             this.health = 100;
             this.x = random(width);
             this.y = random(height);
-            alert("GAME OVER!!! YOU DIED!");
             deathData = {
               name: this.name.toLowerCase(),
               killer: bullets[i].owner.toLowerCase()
             }
             socket.emit("death", deathData);
             socket.emit("newWorld");
+            this.deactivatedTimer = 600;
           }
         }
 
@@ -86,7 +107,11 @@ function Tank(x, y, id) {
 
     //show health bar
     noStroke()
-    fill(map(this.health, 0, 100, 255, 0), map(this.health, 0, 100, 0, 255), 0)
+    if (this.deactivated) {
+      fill(120);
+    }else{
+      fill(map(this.health, 0, 100, 255, 0), map(this.health, 0, 100, 0, 255), 0);
+    }
     rectMode(CENTER);
     rect(0, -35, map(this.health, 0, 100, 0, 35), 2);
 
@@ -104,7 +129,11 @@ function Tank(x, y, id) {
 
     //show tank
     rotate(this.dir);
-    image(this.body, 0, 0, this.size, this.size);
+    if(this.deactivated){
+      image(this.greyBody, 0, 0, this.size, this.size);
+    }else {
+      image(this.body, 0, 0, this.size, this.size);
+    }
     rotate(this.gunDir)
     image(this.gun, 0, -this.size/4, this.size, this.size)
     pop(); // reset to saved matrix

@@ -24,10 +24,13 @@ function setup() {
   tank = new Tank(random(width), random(height), "");
   socket.emit("newConnected");
   socket.emit("newWorld");
+
+  frameRate(60);
 }
 
 function draw() {
   background(255);
+
 
   //show and update blocks
   for (var i = 0; i < blocks.length; i++) {
@@ -76,9 +79,27 @@ function draw() {
   }
 
   //respond to held down keys events
-  for (var i = 0; i < keys.length; i++) {
-    keyPressLogic(keys[i], tank);
+  if (!tank.deactivated) {
+    for (var i = 0; i < keys.length; i++) {
+      keyPressLogic(keys[i], tank);
+    }
   }
+
+
+  //show you died screen
+
+  if(tank.deactivated){
+    var seconds = tank.deactivatedTimer / 60;
+    fill(0, 80);
+    rect(0, 0, width, height);
+    fill(255);
+    textAlign(CENTER, CENTER);
+    textSize(30);
+    text("YOU DIED", width/2, height/2);
+    textSize(20);
+    text("respawning in " + Math.ceil(seconds) + " seconds.", width/2, height/2 + 75);
+  }
+
 }
 
 //what program does on different keys
@@ -111,24 +132,176 @@ function keyPressLogic(currentKey, t) {
   }
   if (currentKey == 32) {
     //SPACE BAR
-    if(t.bulletType == 1){
-      if(frameCount % 8 == 0){
-        t.fire();
-      }
-    }else if (t.bulletType == 3) {
-      if(frameCount % 18 == 0){
-        t.fire();
-      }
+    if (tank.gunReloaded <= 0) {
+      tank.fire();
+      if(tank.bulletType == 10){tank.gunReloaded = 120}
+      if(tank.bulletType == 3){tank.gunReloaded = 18}
+      if(tank.bulletType == 1){tank.gunReloaded = 8}
     }
   }
 }
 
 //get a random tank colour
 function getRandomColor() {
-  var colors = ["purple", "red", "green"];
-  var c = colors[Math.floor(Math.random()*3)];
+  var colors = ["purple", "red", "green", "yellow"];
+  var c = colors[Math.floor(Math.random()*4)];
   return c;
 }
+
+
+//sync our tank data with server
+setInterval(function () {
+  data = {
+    x: tank.x,
+    y: tank.y,
+    dir: tank.dir,
+    gunDir: tank.gunDir,
+    health: tank.health,
+    name: tank.name,
+    col: tank.col,
+    deactivated: tank.deactivated
+  }
+  socket.emit("sync", data)
+}, 50)
+
+//add tank on new connection
+socket.on("newConnected", function (len) {
+  otherTanks = [];
+  for (var i = 0; i < len; i++) {
+    otherTanks.push(new Tank(0, 0, ""));
+  }
+});
+
+//apply new world
+socket.on("newWorld", function (id) {
+  blocks = [];
+  createBlocks(id);
+});
+
+//delete tank on disconnect
+socket.on("userDisconnected", function (id) {
+  for (var i = 0; i < otherTanks.length; i++) {
+    if(otherTanks[i].id == id){
+      otherTanks.splice(i,1);
+    }
+  }
+});
+
+// add bullets from other users
+socket.on("shot", function (data) {
+  bullets.push(new Bullet(data.x, data.y, data.dir, data.owner, data.type))
+})
+
+//this is to update the colours
+socket.on("initial-update", function (data) {
+  for (var i = 0; i < otherTanks.length; i++) {
+    otherTanks[i].col = data[i].col;
+    otherTanks[i].loadGun();
+    otherTanks[i].loadBody();
+  }
+})
+
+//this is executed at 26 fps and recieves data from the server about
+socket.on("update", function (tanks) {
+  for (var i = 0; i < otherTanks.length; i++) {
+    otherTanks[i].x = tanks[i].x;
+    otherTanks[i].y = tanks[i].y;
+    otherTanks[i].dir = tanks[i].dir;
+    otherTanks[i].gunDir = tanks[i].gunDir;
+    otherTanks[i].health = tanks[i].health;
+    otherTanks[i].id = tanks[i].id;
+    otherTanks[i].name = tanks[i].name;
+    otherTanks[i].deactivated = tanks[i].deactivated;
+  }
+});
+//add health packets
+socket.on("new_health_packet", function (data) {
+  healthPackets.push(new HealthPacket(data.x, data.y));
+})
+// remove health packets
+socket.on("remove_health_packet", function (index) {
+  for (var i = 0; i < healthPackets.length; i++) {
+    if (healthPackets[i] == index) {
+      healthPackets.splice(i, 1);
+    }
+  }
+});
+
+socket.on("reset-health", function () {
+  tank.health = 100;
+})
+
+// AI STUFF
+function ai(ai) {
+  ct = findClosestTank(ai);
+  if(ct == null){
+    return;
+  }
+  if(shootAi){
+    keyPressLogic(32, ai);
+  }
+
+  var angleToPlayer = 0;
+  var x = ct.x - ai.x;
+  var y = ct.y - ai.y;
+  if(y < 0){
+    angleToPlayer = -atan(x/y);
+  }else {
+    angleToPlayer = PI-atan(x/y);
+  }
+
+  if(ai.gunDir + ai.dir < angleToPlayer){
+    keyPressLogic(39, ai)
+  }else{
+    keyPressLogic(37, ai)
+  }
+}
+
+//find the closest tank to the player
+function findClosestTank(t) {
+  var ct = null;
+  var d = Infinity;
+  if (otherTanks.length > 1) {
+    for (var i = 0; i < otherTanks.length; i++) {
+      var newD = dist(otherTanks[i].x, otherTanks[i].y, t.x, t.y);
+      if(newD < d && newD > 10){
+        d = newD;
+        ct = otherTanks[i];
+      }
+    }
+  }
+  return ct;
+}
+
+//Create Array of held down keys
+var keys = []
+window.addEventListener('keydown', function () {
+  var addIt = true;
+  for (var i = 0; i < keys.length; i++) {
+    if (keys[i] == event.which) {
+      addIt = false;
+    }
+  }
+  if (addIt) {
+    keys.push(event.which);
+  }
+
+  if (tank !== null && !tank.deactivated) {
+    //change bullet type of tank
+    if (event.which == 49){tank.bulletType = 1;}
+    if (event.which == 50){tank.bulletType = 3;}
+    if (event.which == 51){tank.bulletType = 10;}
+  }
+
+});
+window.addEventListener('keyup', function () {
+  for (var i = 0; i < keys.length; i++) {
+    if (keys[i] == event.which) {
+      keys.splice(i, 1);
+    }
+  }
+});
+
 
 function createBlocks(index) {
   switch (index) {
@@ -193,167 +366,3 @@ function createBlocks(index) {
       break;
   }
 }
-
-//sync our tank data with server
-setInterval(function () {
-  data = {
-    x: tank.x,
-    y: tank.y,
-    dir: tank.dir,
-    gunDir: tank.gunDir,
-    health: tank.health,
-    name: tank.name,
-    col: tank.col
-  }
-  socket.emit("sync", data)
-}, 38)
-
-//add tank on new connection
-socket.on("newConnected", function (len) {
-  otherTanks = [];
-  for (var i = 0; i < len; i++) {
-    otherTanks.push(new Tank(0, 0, ""));
-  }
-});
-
-//apply new world
-socket.on("newWorld", function (id) {
-  blocks = [];
-  createBlocks(id);
-});
-
-//delete tank on disconnect
-socket.on("userDisconnected", function (id) {
-  for (var i = 0; i < otherTanks.length; i++) {
-    if(otherTanks[i].id == id){
-      otherTanks.splice(i,1);
-    }
-  }
-});
-
-// add bullets from other users
-socket.on("shot", function (data) {
-  bullets.push(new Bullet(data.x, data.y, data.dir, data.owner, data.type))
-})
-
-//this is to update the colours
-socket.on("initial-update", function (data) {
-  for (var i = 0; i < otherTanks.length; i++) {
-    otherTanks[i].col = data[i].col;
-    otherTanks[i].loadGun();
-    otherTanks[i].loadBody();
-  }
-})
-
-//this is executed at 26 fps
-socket.on("update", function (tanks) {
-  for (var i = 0; i < otherTanks.length; i++) {
-    otherTanks[i].x = tanks[i].x;
-    otherTanks[i].y = tanks[i].y;
-    otherTanks[i].dir = tanks[i].dir;
-    otherTanks[i].gunDir = tanks[i].gunDir;
-    otherTanks[i].health = tanks[i].health;
-    otherTanks[i].id = tanks[i].id;
-    otherTanks[i].name = tanks[i].name;
-  }
-});
-//add health packets
-socket.on("new_health_packet", function (data) {
-  healthPackets.push(new HealthPacket(data.x, data.y));
-})
-// remove health packets
-socket.on("remove_health_packet", function (index) {
-  for (var i = 0; i < healthPackets.length; i++) {
-    if (healthPackets[i] == index) {
-      healthPackets.splice(i, 1);
-    }
-  }
-})
-
-// AI STUFF
-function ai(ai) {
-  ct = findClosestTank(ai);
-  if(ct == null){
-    return;
-  }
-  if(shootAi){
-    keyPressLogic(32, ai);
-  }
-
-  var angleToPlayer = 0;
-  var x = ct.x - ai.x;
-  var y = ct.y - ai.y;
-  if(y < 0){
-    angleToPlayer = -atan(x/y);
-  }else {
-    angleToPlayer = PI-atan(x/y);
-  }
-
-  if(ai.gunDir + ai.dir < angleToPlayer){
-    keyPressLogic(39, ai)
-  }else{
-    keyPressLogic(37, ai)
-  }
-}
-
-//find the closest tank to the player
-function findClosestTank(t) {
-  var ct = null;
-  var d = Infinity;
-  if (otherTanks.length > 1) {
-    for (var i = 0; i < otherTanks.length; i++) {
-      var newD = dist(otherTanks[i].x, otherTanks[i].y, t.x, t.y);
-      if(newD < d && newD > 10){
-        d = newD;
-        ct = otherTanks[i];
-      }
-    }
-  }
-  return ct;
-}
-
-function keyPressed() {
-  if(key == " "){
-    if(tank.bulletType != 10){
-      tank.fire();
-    }
-  }
-}
-
-
-//Create Array of held down keys
-var keys = []
-window.addEventListener('keydown', function () {
-  var addIt = true;
-  for (var i = 0; i < keys.length; i++) {
-    if (keys[i] == event.which) {
-      addIt = false;
-    }
-  }
-  if (addIt) {
-    keys.push(event.which);
-  }
-
-  if (tank !== null) {
-    //fire heavy duty gun
-    if(event.which == 32){//space bar pressed
-      if(tank.gunReloaded < 0 && tank.bulletType == 10){
-        tank.fire();
-        tank.gunReloaded = 120;
-      }
-    }
-
-    //change bullet type of tank
-    if (event.which == 49){tank.bulletType = 1;}
-    if (event.which == 50){tank.bulletType = 3;}
-    if (event.which == 51){tank.bulletType = 10;}
-  }
-
-});
-window.addEventListener('keyup', function () {
-  for (var i = 0; i < keys.length; i++) {
-    if (keys[i] == event.which) {
-      keys.splice(i, 1);
-    }
-  }
-});

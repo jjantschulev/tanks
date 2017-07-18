@@ -19,14 +19,14 @@ var scores = JSON.parse(fs.readFileSync('scores.json', 'utf8'));
 io.on('connection', function (socket) {
   // add a new tank object to the server array
   tanks.push(
-    {id:socket.id,x:0,y:0,dir:0,gunDir:0,health:100,name:"anonym",col:"purple"}
+    {id:socket.id,x:0,y:0,dir:0,gunDir:0,health:100,name:"anonym",col:"purple",deactivated:false}
   );
 
   //send tank data to clients
   setInterval(function () {
     socket.emit("update", tanks)
     socket.broadcast.emit("update", tanks)
-  }, 38);
+  }, 50);
 
   //send health packets to clients
   setInterval(function () {
@@ -70,6 +70,7 @@ io.on('connection', function (socket) {
         tanks[i].health = data.health;
         tanks[i].name = data.name;
         tanks[i].col = data.col;
+        tanks[i].deactivated = data.deactivated;
       }
     }
   });
@@ -82,6 +83,13 @@ io.on('connection', function (socket) {
 
   //when a client dies
   socket.on("death", function (deathData) {
+    for (var i = 0; i < tanks.length; i++) {
+      if (tanks[i].name.toLowerCase() == deathData.killer) {
+        tanks[i].health = 100;
+        io.to(tanks[i].id).emit("reset-health");
+      }
+    }
+
     // console.log(data.killer +" has killed " + data.name);
     var foundKillerMatch = false;
     var foundLostMatch = false;
