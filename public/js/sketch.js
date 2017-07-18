@@ -6,6 +6,7 @@ var tank;
 var otherTanks = [];
 var bullets = [];
 var useAi = false;
+var shootAi = false;
 var blocks = [];
 var healthPackets = [];
 var explosions = [];
@@ -53,7 +54,7 @@ function draw() {
 
   //apply the ai's rules to the users tank
   if(useAi){
-    ai(tank);
+     ai(tank);
   }
   //update tank
   tank.update();
@@ -92,11 +93,11 @@ function keyPressLogic(currentKey, t) {
     t.x-=t.speed/2*sin(t.dir);
     t.y+=t.speed/2*cos(t.dir);
   }
-  if(currentKey == 65){
+  if(currentKey == 65  || currentKey == 75){
     //a
     t.dir-=0.05;
   }
-  if(currentKey == 68){
+  if(currentKey == 68  || currentKey == 76){
     //d
     t.dir+=0.05;
   }
@@ -275,7 +276,7 @@ function ai(ai) {
   if(ct == null){
     return;
   }
-  if(true){
+  if(shootAi){
     keyPressLogic(32, ai);
   }
 

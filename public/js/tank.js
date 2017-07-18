@@ -52,7 +52,7 @@ function Tank(x, y, id) {
     for (var i = 0; i < bullets.length; i++) {
       if(dist(bullets[i].x, bullets[i].y, this.x, this.y)<this.size/2){
         this.health -= bullets[i].type; //subtract health
-        explosions.push(new Explosion(bullets[i].x, bullets[i].y, bullets[i].size));
+        explosions.push(new Explosion(bullets[i].x, bullets[i].y, bullets[i].size));//make Explosion
         //check if we died
         if(this.health <= 0){
           keys = [];
@@ -192,6 +192,7 @@ function Block(x, y, w, h) {
     //delete bullets if they are inside a block
     for (var i = 0; i < bullets.length; i++) {
       if(bullets[i].x > this.x && bullets[i].x < this.x2 && bullets[i].y > this.y && bullets[i].y < this.y2){
+        explosions.push(new Explosion(bullets[i].x, bullets[i].y, bullets[i].size));//make Explosion
         bullets.splice(i, 1);
       }
     }
