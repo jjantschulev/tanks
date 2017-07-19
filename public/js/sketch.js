@@ -10,6 +10,7 @@ var shootAi = false;
 var blocks = [];
 var healthPackets = [];
 var explosions = [];
+var landmines = [];
 
 //setup name from cookies. this matches username in kraken chat
 var name = Cookies.get('name');
@@ -52,6 +53,14 @@ function draw() {
       bullets.splice(i, 1);
     }else if(bullets[i].y < -bullets[i].size || bullets[i].y > width+bullets[i].size){
       bullets.splice(i, 1);
+    }
+  }
+
+  for (var i = landmines.length-1; i >= 0; i--) {
+    landmines[i].show();
+    if(landmines[i].timer < 0){
+      landmines[i].explode();
+      landmines.splice(i, 1);
     }
   }
 
@@ -140,6 +149,12 @@ function keyPressLogic(currentKey, t) {
       if(tank.bulletType == 1){tank.gunReloaded = 8}
     }
   }
+  if (currentKey == 77) {
+    //m
+    if (tank.amountOfLandmines > 0) {
+      tank.dropLandmine();
+    }
+  }
 }
 
 //get a random tank colour
@@ -191,6 +206,10 @@ socket.on("userDisconnected", function (id) {
 // add bullets from other users
 socket.on("shot", function (data) {
   bullets.push(new Bullet(data.x, data.y, data.dir, data.owner, data.type))
+})
+
+socket.on("landmine", function (data) {
+  landmines.push(new Landmine(data.x, data.y));
 })
 
 //this is to update the colours

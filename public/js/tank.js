@@ -16,9 +16,15 @@ function Tank(x, y, id) {
   this.size = 40;
   this.health = 100;
   this.bulletType = 3;
+
   this.gunReloaded = 0;
+  this.landmineReloaded = 0;
+  this.amountOfLandmines = 3;
+
   this.deactivated = false;
   this.deactivatedTimer = 0;
+
+
 
   //images
   this.body = loadImage("/assets/"+this.col+"_body.png");
@@ -55,6 +61,11 @@ function Tank(x, y, id) {
 
     //reload gun
     this.gunReloaded --;
+    this.landmineReloaded --;
+    if(this.landmineReloaded <= 0){
+      this.landmineReloaded = 3000;
+      this.amountOfLandmines ++;
+    }
 
     //eat health packets
     for (var i = 0; i < healthPackets.length; i++) {
@@ -72,24 +83,9 @@ function Tank(x, y, id) {
     for (var i = 0; i < bullets.length; i++) {
       if(dist(bullets[i].x, bullets[i].y, this.x, this.y)<this.size/2){
         this.health -= bullets[i].type; //subtract health
-        explosions.push(new Explosion(bullets[i].x, bullets[i].y, bullets[i].size));//make Explosion
+        explosions.push(new Explosion(bullets[i].x, bullets[i].y, bullets[i].size, 20, 1));//make Explosion
         //check if we died
-        if(this.health <= 0){
-          this.health = 100;
-          keys = [];
-          if(this == tank){ // if this tank is the users one
-            this.health = 100;
-            this.x = random(width);
-            this.y = random(height);
-            deathData = {
-              name: this.name.toLowerCase(),
-              killer: bullets[i].owner.toLowerCase()
-            }
-            socket.emit("death", deathData);
-            socket.emit("newWorld");
-            this.deactivatedTimer = 600;
-          }
-        }
+        thischeckDeath(bullets[i].owner.toLowerCase());
 
         //move tank on bullet hit
         if (bullets[i].type == 20) {
@@ -101,6 +97,23 @@ function Tank(x, y, id) {
         }
         bullets.splice(i,1);
 
+      }
+    }
+  }
+
+  this.checkDeath = function (killerName) {
+    if(this.health <= 0){
+      if(this == tank){ // if this tank is the users one
+        this.health = 100;
+        this.x = random(width);
+        this.y = random(height);
+        deathData = {
+          name: this.name.toLowerCase(),
+          killer: killerName
+        }
+        socket.emit("death", deathData);
+        socket.emit("newWorld");
+        this.deactivatedTimer = 600;
       }
     }
   }
@@ -158,6 +171,16 @@ function Tank(x, y, id) {
     // bullets.push(new Bullet(bulletInfo.x, bulletInfo.y, bulletInfo.dir)); //add this bullet to array
     socket.emit("shot", bulletInfo); //send new bullet data to server
   }
+
+  //drop landmine
+  this.dropLandmine = function () {
+    this.amountOfLandmines --;
+    data = {
+      x: tank.x,
+      y: tank.y
+    }
+    socket.emit("landmine", data);
+  }
 }
 
 
@@ -172,11 +195,10 @@ function Bullet(x, y, d, owner, type) {
   this.owner = owner;
   this.type = type;
 
-  if (this.type == 3) {
-    this.size = 5;
-  } else if (this.type == 1) {
-    this.size = 3;
-  }
+  if (this.type == 1) {this.size = 3;}
+  else if (this.type == 3) {this.size = 5;}
+  else if (this.type == 10) {this.size = 7;}
+  else if (this.type == 15) {this.size = 10;}
 
   this.show = function () {
 
@@ -228,10 +250,42 @@ function Block(x, y, w, h) {
     //delete bullets if they are inside a block
     for (var i = 0; i < bullets.length; i++) {
       if(bullets[i].x > this.x && bullets[i].x < this.x2 && bullets[i].y > this.y && bullets[i].y < this.y2){
-        explosions.push(new Explosion(bullets[i].x, bullets[i].y, bullets[i].size));//make Explosion
+        explosions.push(new Explosion(bullets[i].x, bullets[i].y, bullets[i].size, 15, 0.8));//make Explosion
         bullets.splice(i, 1);
       }
     }
+  }
+}
+
+//add tripod with a gun that shoots closest tank
+function Tripod(x, y) {
+  this.x = x;
+  this.y = y;
+}
+
+function Landmine (x, y) {
+  this.x = x;
+  this.y = y;
+  this.size = 15;
+  this.timer = 300;
+
+  this.show = function () {
+    fill(255, 150, 0);
+    ellipse(this.x, this.y, this.size, this.size);
+    this.timer--;
+    noFill();
+    stroke(0);
+    arc(this.x, this.y, this.size, this.size, 0, this.timer/300*TWO_PI)
+    noStroke();
+  }
+
+  this.explode = function () {
+    explosions.push(new Explosion(this.x, this.y, this.size, 60, 6));
+    var d = dist(tank.x, tank.y, this.x, this.y)
+    if(d < 200){
+      tank.health -= (200-d)/2;
+    }
+    tank.checkDeath("landmine");
   }
 }
 
@@ -251,17 +305,19 @@ function HealthPacket(x, y) {
 
 
 //make explosions
-function Explosion(x, y, s) {
+function Explosion(x, y, s, time, sInc) {
   this.x = x;
   this.y = y;
-  this.timer = 20;
+  this.timer = time;
   this.size = s;
   this.alpha = 100;
+  this.rate = 100/this.timer;
+  this.sizeIncrease = sInc
 
   this.use = function () {
-    this.size++;
+    this.size+=this.sizeIncrease;
     this.timer--;
-    this.alpha -= 5;
+    this.alpha -= this.rate;
     fill(255, 150, 0, this.alpha);
     ellipse(this.x, this.y, this.size, this.size);
   }
