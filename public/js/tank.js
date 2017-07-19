@@ -284,7 +284,7 @@ function Tripod(x, y, owner) {
   this.y = y;
   this.size = 30;
   this.owner = owner;
-  this.timer = 10;
+  this.timer = 7200;
   this.dir = 0;
   this.reload = 0;
 
@@ -295,7 +295,11 @@ function Tripod(x, y, owner) {
     rotate(this.dir);
     imageMode(CENTER);
     image(tank.gun, 0, -this.size/3.8, this.size, this.size);
+    rectMode(CENTER);
+    rect(0, this.size/3, this.timer/288, 2)
+    rectMode(CORNER);
     pop();
+    this.timer --;
   }
 
   this.ai  = function () {
