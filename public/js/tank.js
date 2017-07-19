@@ -22,7 +22,7 @@ function Tank(x, y, id) {
 
   this.gunReloaded = 0;
   this.landmineReloaded = 0;
-  this.amountOfLandmines = 3;
+  this.amountOfLandmines = 2;
   this.tripodAmount = 3;
 
   this.deactivated = false;
@@ -73,7 +73,7 @@ function Tank(x, y, id) {
     //reload gun
     this.gunReloaded --;
     this.landmineReloaded --;
-    if(this.landmineReloaded <= 0){
+    if(this.landmineReloaded < 0){
       this.landmineReloaded = 3000;
       this.amountOfLandmines ++;
     }

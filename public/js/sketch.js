@@ -103,6 +103,7 @@ function draw() {
     }
   }
 
+  showAmmoInfo();
 
   //show you died screen
 
@@ -188,6 +189,18 @@ function getRandomColor() {
   var colors = ["purple", "red", "green", "yellow"];
   var c = colors[Math.floor(Math.random()*4)];
   return c;
+}
+
+function showAmmoInfo() {
+  for (var i = 1; i < tank.amountOfLandmines+1; i++) {
+    fill(255, 150, 0);
+    ellipse(6, i*8, 6, 6);
+  }
+
+  for (var i = 1; i < tank.tripodAmount+1; i++) {
+    fill(51);
+    ellipse(14, i*8, 6, 6);
+  }
 }
 
 
