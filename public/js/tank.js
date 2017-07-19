@@ -71,6 +71,9 @@ function Tank(x, y, id) {
     }
 
     //reload gun
+    if (this.tripodAmount > 2) {
+      this.tripodAmount = 2;
+    }
     this.gunReloaded --;
     this.landmineReloaded --;
     if(this.landmineReloaded < 0){
@@ -284,7 +287,7 @@ function Tripod(x, y, owner) {
   this.y = y;
   this.size = 30;
   this.owner = owner;
-  this.timer = 7200;
+  this.timer = 2200;
   this.dir = 0;
   this.reload = 0;
 
@@ -296,7 +299,7 @@ function Tripod(x, y, owner) {
     imageMode(CENTER);
     image(tank.gun, 0, -this.size/3.8, this.size, this.size);
     rectMode(CENTER);
-    rect(0, this.size/3, this.timer/288, 2)
+    rect(0, this.size/3, this.timer/88, 2)
     rectMode(CORNER);
     pop();
     this.timer --;
@@ -350,10 +353,10 @@ function Tripod(x, y, owner) {
         y: this.y+22*cos(PI - this.dir),
         dir: PI+this.dir,
         owner: "tripod",
-        type: 3
+        type: 1
       }
       socket.emit("shot", bulletInfo); //send new bullet data to server
-      this.reload = 18;
+      this.reload = 15;
     }
   }
 }

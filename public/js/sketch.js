@@ -293,7 +293,7 @@ socket.on("remove_health_packet", function (index) {
 socket.on("reset-health", function () {
   tank.health = 100;
   tank.tripodAmount ++;
-  tank.amountOfLandmines += 2;
+  tank.amountOfLandmines ++;
 })
 
 //Create Array of held down keys
