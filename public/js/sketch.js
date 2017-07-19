@@ -11,6 +11,7 @@ var blocks = [];
 var healthPackets = [];
 var explosions = [];
 var landmines = [];
+var tripods = [];
 
 //setup name from cookies. this matches username in kraken chat
 var name = Cookies.get('name');
@@ -61,6 +62,14 @@ function draw() {
     if(landmines[i].timer < 0){
       landmines[i].explode();
       landmines.splice(i, 1);
+    }
+  }
+
+  for (var i = tripods.length-1; i >= 0; i--) {
+    tripods[i].ai();
+    tripods[i].show();
+    if(tripods[i].timer < 0){
+      tripods.splice(i, 1);
     }
   }
 
@@ -115,13 +124,13 @@ function draw() {
 function keyPressLogic(currentKey, t) {
   if(currentKey == 87){
     //w
-    t.x+=t.speed*sin(t.dir);
-    t.y-=t.speed*cos(t.dir);
+    t.xVel =  t.speed*sin(t.dir);
+    t.yVel = -t.speed*cos(t.dir);
   }
   if(currentKey == 83){
     //s
-    t.x-=t.speed/2*sin(t.dir);
-    t.y+=t.speed/2*cos(t.dir);
+    t.xVel = -t.speed/2*sin(t.dir);
+    t.yVel =  t.speed/2*cos(t.dir);
   }
   if(currentKey == 65  || currentKey == 75){
     //a
@@ -149,11 +158,28 @@ function keyPressLogic(currentKey, t) {
       if(tank.bulletType == 1){tank.gunReloaded = 8}
     }
   }
+}
+
+function onKeydownLogic(currentKey) {
   if (currentKey == 77) {
     //m
     if (tank.amountOfLandmines > 0) {
       tank.dropLandmine();
     }
+  }
+  if (currentKey == 84) {
+    //t
+    if (tank.tripodAmount > 0) {
+      tank.dropTripod();
+    }
+  }
+
+  if (tank !== null && !tank.deactivated) {
+    //change bullet type of tank
+    if (event.which == 49){tank.bulletType = 1;}
+    if (event.which == 50){tank.bulletType = 3;}
+    if (event.which == 51){tank.bulletType = 10;}
+    if (event.which == 52){tank.bulletType = 20;}
   }
 }
 
@@ -212,6 +238,10 @@ socket.on("landmine", function (data) {
   landmines.push(new Landmine(data.x, data.y));
 })
 
+socket.on("tripod", function (data) {
+  tripods.push(new Tripod(data.x, data.y, data.owner));
+})
+
 //this is to update the colours
 socket.on("initial-update", function (data) {
   for (var i = 0; i < otherTanks.length; i++) {
@@ -251,48 +281,6 @@ socket.on("reset-health", function () {
   tank.health = 100;
 })
 
-// AI STUFF
-function ai(ai) {
-  ct = findClosestTank(ai);
-  if(ct == null){
-    return;
-  }
-  if(shootAi){
-    keyPressLogic(32, ai);
-  }
-
-  var angleToPlayer = 0;
-  var x = ct.x - ai.x;
-  var y = ct.y - ai.y;
-  if(y < 0){
-    angleToPlayer = -atan(x/y);
-  }else {
-    angleToPlayer = PI-atan(x/y);
-  }
-
-  if(ai.gunDir + ai.dir < angleToPlayer){
-    keyPressLogic(39, ai)
-  }else{
-    keyPressLogic(37, ai)
-  }
-}
-
-//find the closest tank to the player
-function findClosestTank(t) {
-  var ct = null;
-  var d = Infinity;
-  if (otherTanks.length > 1) {
-    for (var i = 0; i < otherTanks.length; i++) {
-      var newD = dist(otherTanks[i].x, otherTanks[i].y, t.x, t.y);
-      if(newD < d && newD > 10){
-        d = newD;
-        ct = otherTanks[i];
-      }
-    }
-  }
-  return ct;
-}
-
 //Create Array of held down keys
 var keys = []
 window.addEventListener('keydown', function () {
@@ -306,13 +294,7 @@ window.addEventListener('keydown', function () {
     keys.push(event.which);
   }
 
-  if (tank !== null && !tank.deactivated) {
-    //change bullet type of tank
-    if (event.which == 49){tank.bulletType = 1;}
-    if (event.which == 50){tank.bulletType = 3;}
-    if (event.which == 51){tank.bulletType = 10;}
-    if (event.which == 52){tank.bulletType = 20;}
-  }
+  onKeydownLogic(event.which);
 
 });
 window.addEventListener('keyup', function () {

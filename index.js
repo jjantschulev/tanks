@@ -86,6 +86,11 @@ io.on('connection', function (socket) {
     socket.emit("landmine", data)
   })
 
+  socket.on("tripod", function (data) {
+    socket.broadcast.emit("tripod", data)
+    socket.emit("tripod", data)
+  })
+
   //when a client dies
   socket.on("death", function (deathData) {
     for (var i = 0; i < tanks.length; i++) {

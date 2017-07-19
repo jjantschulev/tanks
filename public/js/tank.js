@@ -6,6 +6,9 @@ function Tank(x, y, id) {
   //physics variables
   this.x = x;
   this.y = y;
+  this.xVel = 0;
+  this.yVel = 0;
+
   this.speed = 1.8;
   this.dir = 0;
   this.gunDir = 0;
@@ -20,6 +23,7 @@ function Tank(x, y, id) {
   this.gunReloaded = 0;
   this.landmineReloaded = 0;
   this.amountOfLandmines = 3;
+  this.tripodAmount = 3;
 
   this.deactivated = false;
   this.deactivatedTimer = 0;
@@ -42,6 +46,13 @@ function Tank(x, y, id) {
 
 
   this.update = function () {
+    //update physics
+    this.x += this.xVel;
+    this.y += this.yVel;
+
+    this.xVel = 0;
+    this.yVel = 0;
+
     //block going off the edge
     this.x = constrain(this.x, 0, width);
     this.y = constrain(this.y, 0, height);
@@ -85,7 +96,7 @@ function Tank(x, y, id) {
         this.health -= bullets[i].type; //subtract health
         explosions.push(new Explosion(bullets[i].x, bullets[i].y, bullets[i].size, 20, 1));//make Explosion
         //check if we died
-        thischeckDeath(bullets[i].owner.toLowerCase());
+        this.checkDeath(bullets[i].owner.toLowerCase());
 
         //move tank on bullet hit
         if (bullets[i].type == 20) {
@@ -181,6 +192,16 @@ function Tank(x, y, id) {
     }
     socket.emit("landmine", data);
   }
+
+  this.dropTripod = function () {
+    this.tripodAmount --;
+    data = {
+      x: tank.x,
+      y: tank.y,
+      owner: tank.name
+    }
+    socket.emit("tripod", data);
+  }
 }
 
 
@@ -198,7 +219,7 @@ function Bullet(x, y, d, owner, type) {
   if (this.type == 1) {this.size = 3;}
   else if (this.type == 3) {this.size = 5;}
   else if (this.type == 10) {this.size = 7;}
-  else if (this.type == 15) {this.size = 10;}
+  else if (this.type == 20) {this.size = 10;}
 
   this.show = function () {
 
@@ -258,9 +279,79 @@ function Block(x, y, w, h) {
 }
 
 //add tripod with a gun that shoots closest tank
-function Tripod(x, y) {
+function Tripod(x, y, owner) {
   this.x = x;
   this.y = y;
+  this.size = 30;
+  this.owner = owner;
+  this.timer = 10;
+  this.dir = 0;
+  this.reload = 0;
+
+  this.show = function () {
+    push()
+    fill(51);
+    translate(this.x, this.y);
+    rotate(this.dir);
+    imageMode(CENTER);
+    image(tank.gun, 0, -this.size/3.8, this.size, this.size);
+    pop();
+  }
+
+  this.ai  = function () {
+    this.reload --;
+
+    ct = this.findClosestTank();
+    if(ct == null){
+      return;
+    }
+
+    var angleToPlayer = 0;
+    var x = ct.x - this.x;
+    var y = ct.y - this.y;
+    if(y < 0){
+      angleToPlayer = -atan(x/y);
+    }else {
+      angleToPlayer = PI-atan(x/y);
+    }
+
+    if(this.dir < angleToPlayer){
+      this.dir += 0.028
+    }else{
+      this.dir -= 0.028
+    }
+    this.shoot();
+  }
+
+  this.findClosestTank = function () {
+    //find the closest tank to the player
+    var ct = null;
+    var d = Infinity;
+    if (otherTanks.length > 0) {
+      for (var i = 0; i < otherTanks.length; i++) {
+        var newD = dist(otherTanks[i].x, otherTanks[i].y, this.x, this.y);
+        if(newD < d && otherTanks[i].name != this.owner){
+          d = newD;
+          ct = otherTanks[i];
+        }
+      }
+    }
+    return ct;
+  }
+
+  this.shoot = function () {
+    if(this.reload <= 0){
+      var bulletInfo = {
+        x: this.x+22*sin(PI - this.dir),
+        y: this.y+22*cos(PI - this.dir),
+        dir: PI+this.dir,
+        owner: "tripod",
+        type: 3
+      }
+      socket.emit("shot", bulletInfo); //send new bullet data to server
+      this.reload = 18;
+    }
+  }
 }
 
 function Landmine (x, y) {
