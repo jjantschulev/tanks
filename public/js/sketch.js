@@ -12,6 +12,7 @@ var healthPackets = [];
 var explosions = [];
 var landmines = [];
 var tripods = [];
+var blueBombs = [];
 
 //setup name from cookies. this matches username in kraken chat
 var name = Cookies.get('name');
@@ -32,6 +33,7 @@ function setup() {
 
 function draw() {
   background(255);
+
 
 
   //show and update blocks
@@ -71,6 +73,10 @@ function draw() {
     if(tripods[i].timer < 0){
       tripods.splice(i, 1);
     }
+  }
+
+  for (var i = 0; i < blueBombs.length; i++) {
+    blueBombs[i].use();
   }
 
   //apply the ai's rules to the users tank
@@ -175,6 +181,13 @@ function onKeydownLogic(currentKey) {
     }
   }
 
+  if (currentKey == 66) {
+    //b
+    if (tank.blueBombAmount > 0) {
+      tank.dropBlueBomb();
+    }
+  }
+
   if (tank !== null && !tank.deactivated) {
     //change bullet type of tank
     if (event.which == 49){tank.bulletType = 1;}
@@ -193,13 +206,21 @@ function getRandomColor() {
 
 function showAmmoInfo() {
   for (var i = 1; i < tank.amountOfLandmines+1; i++) {
+    noStroke();
     fill(255, 150, 0);
     ellipse(6, i*8, 6, 6);
   }
 
   for (var i = 1; i < tank.tripodAmount+1; i++) {
+    noStroke();
     fill(51);
     ellipse(14, i*8, 6, 6);
+  }
+
+  for (var i = 1; i < tank.blueBombAmount+1; i++) {
+    noStroke();
+    fill(70, 167, 242);
+    ellipse(22, i*8, 6, 6);
   }
 }
 
@@ -255,6 +276,18 @@ socket.on("tripod", function (data) {
   tripods.push(new Tripod(data.x, data.y, data.owner));
 })
 
+socket.on("blue-bomb", function (data) {
+  blueBombs.push(new BlueBomb(data.x, data.y, data.owner));
+})
+
+socket.on("blue-bomb-explode", function (data) {
+  for (var i = 0; i < blueBombs.length; i++) {
+    if (blueBombs[i].x == data.x && blueBombs[i].y == data.y && blueBombs[i].ownerName == data.owner) {
+      blueBombs[i].explode();
+    }
+  }
+})
+
 //this is to update the colours
 socket.on("initial-update", function (data) {
   for (var i = 0; i < otherTanks.length; i++) {
@@ -293,7 +326,8 @@ socket.on("remove_health_packet", function (index) {
 socket.on("reset-health", function () {
   tank.health = 100;
   tank.tripodAmount ++;
-  tank.amountOfLandmines ++;
+  tank.blueBombAmount += 3;
+  tank.amountOfLandmines += 2;
 })
 
 //Create Array of held down keys

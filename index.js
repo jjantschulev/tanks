@@ -91,6 +91,16 @@ io.on('connection', function (socket) {
     socket.emit("tripod", data)
   })
 
+  socket.on("blue-bomb", function (data) {
+    socket.broadcast.emit("blue-bomb", data)
+    socket.emit("blue-bomb", data)
+  })
+
+  socket.on("blue-bomb-explode", function (data) {
+    socket.broadcast.emit("blue-bomb-explode", data)
+    socket.emit("blue-bomb-explode", data)
+  })
+
   //when a client dies
   socket.on("death", function (deathData) {
     for (var i = 0; i < tanks.length; i++) {
