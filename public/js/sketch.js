@@ -281,8 +281,10 @@ socket.on("shot", function (data) {
 })
 
 socket.on("pulse", function (data) {
-  var p = new Pulse(data.x, data.y);
-  p.use();
+  setTimeout(function () {
+    var p = new Pulse(data.x, data.y);
+    p.use();
+  }, 45)
 })
 
 socket.on("landmine", function (data) {
@@ -342,10 +344,10 @@ socket.on("remove_health_packet", function (index) {
 
 socket.on("reset-health", function () {
   tank.health = 100;
-  tank.tripodAmount ++;
+  tank.tripodAmount += 1;
   tank.blueBombAmount += 2;
   tank.amountOfLandmines += 3;
-  tank.pulsesAmount += 5;
+  tank.pulsesAmount += 4;
 })
 
 //Create Array of held down keys
