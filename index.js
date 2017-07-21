@@ -38,7 +38,7 @@ io.on('connection', function (socket) {
       socket.emit("new_health_packet", data)
       socket.broadcast.emit("new_health_packet", data)
     }
-  }, 1000);
+  }, 3000);
 
   //tell client they have sucessfully connected
   socket.on("newConnected", function () {
@@ -104,7 +104,7 @@ io.on('connection', function (socket) {
   //when a client dies
   socket.on("death", function (deathData) {
     for (var i = 0; i < tanks.length; i++) {
-      if (tanks[i].name.toLowerCase() == deathData.killer) {
+      if (tanks[i].name.toLowerCase() == deathData.killer.toLowerCase()) {
         io.to(tanks[i].id).emit("reset-health");
       }
     }

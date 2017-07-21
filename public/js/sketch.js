@@ -63,7 +63,6 @@ function draw() {
     landmines[i].show();
     if(landmines[i].timer < 0){
       landmines[i].explode();
-      landmines.splice(i, 1);
     }
   }
 
@@ -170,21 +169,26 @@ function keyPressLogic(currentKey, t) {
 function onKeydownLogic(currentKey) {
   if (currentKey == 77) {
     //m
-    if (tank.amountOfLandmines > 0) {
-      tank.dropLandmine();
+    if (tank.blueBombAmount > 0) {
+      tank.dropBlueBomb();
     }
   }
-  if (currentKey == 84) {
-    //t
-    if (tank.tripodAmount > 0) {
-      tank.dropTripod();
+  if (currentKey == 78) {
+    //n
+    if (tank.amountOfLandmines > 0) {
+      tank.dropLandmine();
     }
   }
 
   if (currentKey == 66) {
     //b
-    if (tank.blueBombAmount > 0) {
-      tank.dropBlueBomb();
+    //drop pulse
+  }
+
+  if (currentKey == 86) {
+    //v
+    if (tank.tripodAmount > 0) {
+      tank.dropTripod();
     }
   }
 
@@ -326,8 +330,8 @@ socket.on("remove_health_packet", function (index) {
 socket.on("reset-health", function () {
   tank.health = 100;
   tank.tripodAmount ++;
-  tank.blueBombAmount += 3;
-  tank.amountOfLandmines += 2;
+  tank.blueBombAmount += 2;
+  tank.amountOfLandmines += 3;
 })
 
 //Create Array of held down keys
