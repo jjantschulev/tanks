@@ -167,14 +167,14 @@ function keyPressLogic(currentKey, t) {
 }
 
 function onKeydownLogic(currentKey) {
-  if (currentKey == 77) {
-    //m
+  if (currentKey == 78) {
+    //n
     if (tank.blueBombAmount > 0) {
       tank.dropBlueBomb();
     }
   }
-  if (currentKey == 78) {
-    //n
+  if (currentKey == 77) {
+    //m
     if (tank.amountOfLandmines > 0) {
       tank.dropLandmine();
     }
@@ -182,7 +182,9 @@ function onKeydownLogic(currentKey) {
 
   if (currentKey == 66) {
     //b
-    //drop pulse
+    if (tank.pulsesAmount > 0) {
+      tank.dropPulse();
+    }
   }
 
   if (currentKey == 86) {
@@ -209,22 +211,28 @@ function getRandomColor() {
 }
 
 function showAmmoInfo() {
+  for (var i = 1; i < tank.pulsesAmount+1; i++) {
+    noStroke();
+    fill(0, 255, 150);
+    ellipse(8, i*8, 6, 6);
+  }
+
   for (var i = 1; i < tank.amountOfLandmines+1; i++) {
     noStroke();
     fill(255, 150, 0);
-    ellipse(6, i*8, 6, 6);
-  }
-
-  for (var i = 1; i < tank.tripodAmount+1; i++) {
-    noStroke();
-    fill(51);
-    ellipse(14, i*8, 6, 6);
+    ellipse(16, i*8, 6, 6);
   }
 
   for (var i = 1; i < tank.blueBombAmount+1; i++) {
     noStroke();
     fill(70, 167, 242);
-    ellipse(22, i*8, 6, 6);
+    ellipse(24, i*8, 6, 6);
+  }
+
+  for (var i = 1; i < tank.tripodAmount+1; i++) {
+    noStroke();
+    fill(51);
+    ellipse(32, i*8, 6, 6);
   }
 }
 
@@ -272,8 +280,13 @@ socket.on("shot", function (data) {
   bullets.push(new Bullet(data.x, data.y, data.dir, data.owner, data.type))
 })
 
+socket.on("pulse", function (data) {
+  var p = new Pulse(data.x, data.y);
+  p.use();
+})
+
 socket.on("landmine", function (data) {
-  landmines.push(new Landmine(data.x, data.y));
+  landmines.push(new Landmine(data.x, data.y, data.name));
 })
 
 socket.on("tripod", function (data) {
@@ -332,6 +345,7 @@ socket.on("reset-health", function () {
   tank.tripodAmount ++;
   tank.blueBombAmount += 2;
   tank.amountOfLandmines += 3;
+  tank.pulsesAmount += 5;
 })
 
 //Create Array of held down keys

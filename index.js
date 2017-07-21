@@ -81,6 +81,11 @@ io.on('connection', function (socket) {
     socket.emit("shot", data)
   })
 
+  socket.on("pulse", function (data) {
+    socket.broadcast.emit("pulse", data)
+    socket.emit("pulse", data)
+  })
+
   socket.on("landmine", function (data) {
     socket.broadcast.emit("landmine", data)
     socket.emit("landmine", data)

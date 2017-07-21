@@ -25,6 +25,7 @@ function Tank(x, y, id) {
   this.amountOfLandmines = 1;
   this.tripodAmount = 0;
   this.blueBombAmount = 1;
+  this.pulsesAmount = 2;
 
   this.deactivated = false;
   this.deactivatedTimer = 0;
@@ -105,8 +106,8 @@ function Tank(x, y, id) {
 
         //move tank on bullet hit
         if (bullets[i].type == 20) {
-          this.x += 8*bullets[i].type*sin(bullets[i].dir);
-          this.y -= 8*bullets[i].type*cos(bullets[i].dir);
+          this.x += 5*bullets[i].type*sin(bullets[i].dir);
+          this.y -= 5*bullets[i].type*cos(bullets[i].dir);
         }else {
           this.x += 0.5*bullets[i].type*sin(bullets[i].dir);
           this.y -= 0.5*bullets[i].type*cos(bullets[i].dir);
@@ -193,7 +194,8 @@ function Tank(x, y, id) {
     this.amountOfLandmines --;
     data = {
       x: tank.x,
-      y: tank.y
+      y: tank.y,
+      name: tank.name
     }
     socket.emit("landmine", data);
   }
@@ -216,6 +218,15 @@ function Tank(x, y, id) {
     }
     socket.emit("blue-bomb", data);
     this.blueBombAmount--;
+  }
+
+  this.dropPulse = function () {
+    data = {
+      x: tank.x,
+      y: tank.y
+    }
+    socket.emit("pulse", data);
+    this.pulsesAmount --;
   }
 }
 
@@ -246,6 +257,8 @@ function Bullet(x, y, d, owner, type) {
   this.update = function () {
     this.x+=this.speed*sin(this.dir);
     this.y-=this.speed*cos(this.dir);
+
+
   }
 }
 
@@ -373,12 +386,13 @@ function Tripod(x, y, owner) {
   }
 }
 
-function Landmine (x, y) {
+function Landmine (x, y, n) {
   this.x = x;
   this.y = y;
   this.size = 15;
   this.timer = 200;
-  this.col = color(255, 150, 0)
+  this.col = color(255, 150, 0);
+  this.ownerName = n;
 
   this.show = function () {
     fill(this.col);
@@ -406,7 +420,7 @@ function Landmine (x, y) {
       tank.x += (200-d)*sin(PI - flingDir);
       tank.y += (200-d)*cos(PI - flingDir);
     }
-    tank.checkDeath("landmine");
+    tank.checkDeath(this.ownerName);
     landmines.splice(landmines.indexOf(this), 1);
 
     for (var i = 0; i < landmines.length; i++) {
@@ -465,7 +479,6 @@ function BlueBomb(x, y, n) {
       tank.checkDeath(this.ownerName);
     }
     explosions.push(new Explosion(this.x, this.y, this.size, 60, 4, color(70, 167, 242)));
-    explosions.push(new Explosion(this.x, this.y, this.size, 50, 3.5, color(70, 167, 242)));
     blueBombs.splice(blueBombs.indexOf(this), 1);
 
 
@@ -495,9 +508,21 @@ function HealthPacket(x, y) {
 function Pulse(x, y) {
   this.x = x;
   this.y = y;
+  this.colour = color(0, 255, 150);
   this.use = function () {
-    if(dist(this.x, this.y, tank.x, tank.y)<75){
-
+    explosions.push(new Explosion(this.x, this.y, 10, 40, 12, this.colour));
+    var d = dist(this.x, this.y, tank.x, tank.y);
+    if(d<200 && d>2){
+      var flingDir = 0;
+      var x = tank.x - this.x;
+      var y = tank.y - this.y;
+      if(y < 0){
+        flingDir = -atan(x/y);
+      }else {
+        flingDir = PI-atan(x/y);
+      }
+      tank.x += (200-d)*sin(PI - flingDir);
+      tank.y += (200-d)*cos(PI - flingDir);
     }
   }
 }
