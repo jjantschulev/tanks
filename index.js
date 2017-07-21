@@ -14,6 +14,7 @@ var io = require('socket.io')(server);
 //game Variables
 var tanks = [];
 var scores = JSON.parse(fs.readFileSync('scores.json', 'utf8'));
+var userData = JSON.parse(fs.readFileSync('userData.json', 'utf8'));
 
 //when new user connects:
 io.on('connection', function (socket) {
@@ -41,14 +42,23 @@ io.on('connection', function (socket) {
   }, 3000);
 
   //tell client they have sucessfully connected
-  socket.on("newConnected", function () {
+  socket.on("newConnected", function (n) {
     socket.emit("newConnected", tanks.length)
     socket.broadcast.emit("newConnected", tanks.length);
 
+    var data = {
+      t: tanks,
+      landmineAmount: getLandmineAmount(n),
+      blueBombAmount: getBlueBombAmount(n),
+      tripodAmount: getTripodAmount(n),
+      pulsesAmount: getPulseAmount(n),
+      name: n
+    }
+
     setTimeout(function () {
-      socket.emit("initial-update", tanks)
-      socket.broadcast.emit("initial-update", tanks)
-    }, 80);
+      socket.emit("initial-update", data)
+      socket.broadcast.emit("initial-update", data)
+    }, 100);
 
   })
 
@@ -104,6 +114,34 @@ io.on('connection', function (socket) {
   socket.on("blue-bomb-explode", function (data) {
     socket.broadcast.emit("blue-bomb-explode", data)
     socket.emit("blue-bomb-explode", data)
+  });
+
+  socket.on("save-user-data", function (data) {
+    var foundUserMatch = false;
+    for (var i = 0; i < userData.length; i++) {
+      if (userData[i].name == data.name) {
+        userData[i].landmineAmount = data.landmineAmount;
+        userData[i].blueBombAmount = data.blueBombAmount;
+        userData[i].tripodAmount = data.tripodAmount;
+        userData[i].pulsesAmount = data.pulsesAmount;
+        foundUserMatch = true;
+      }
+    }
+
+    if (!foundUserMatch) {
+      var newPerson = {
+        name: data.name,
+        landmineAmount: data.landmineAmount,
+        blueBombAmount: data.blueBombAmount,
+        tripodAmount: data.tripodAmount,
+        pulsesAmount: data.pulsesAmount
+      }
+      userData.push(newPerson);
+    }
+    dataToWrite = JSON.stringify(userData);
+    fs.writeFile("userData.json", dataToWrite, function(err) {
+      if(err){return console.log(err);}
+    });
   })
 
   //when a client dies
@@ -168,3 +206,43 @@ io.on('connection', function (socket) {
     }
   })
 });
+
+function getLandmineAmount(name) {
+  var amount = 1;
+  for (var i = 0; i < userData.length; i++) {
+    if (userData[i].name == name) {
+      amount = userData[i].landmineAmount;
+    }
+  }
+  return amount;
+}
+
+function getBlueBombAmount(name) {
+  var amount = 1;
+  for (var i = 0; i < userData.length; i++) {
+    if (userData[i].name == name) {
+      amount = userData[i].blueBombAmount;
+    }
+  }
+  return amount;
+}
+
+function getTripodAmount(name) {
+  var amount = 0;
+  for (var i = 0; i < userData.length; i++) {
+    if (userData[i].name == name) {
+      amount = userData[i].tripodAmount;
+    }
+  }
+  return amount;
+}
+
+function getPulseAmount(name) {
+  var amount = 3;
+  for (var i = 0; i < userData.length; i++) {
+    if (userData[i].name == name) {
+      amount = userData[i].pulsesAmount;
+    }
+  }
+  return amount;
+}

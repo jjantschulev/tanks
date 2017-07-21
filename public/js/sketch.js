@@ -25,7 +25,7 @@ function setup() {
   createCanvas(600, 600);
   //create users tank and tell server about new connected user
   tank = new Tank(random(width), random(height), "");
-  socket.emit("newConnected");
+  socket.emit("newConnected", name);
   socket.emit("newWorld");
 
   frameRate(60);
@@ -250,7 +250,20 @@ setInterval(function () {
     deactivated: tank.deactivated
   }
   socket.emit("sync", data)
-}, 40)
+}, 40);
+
+//save user data
+
+setInterval(function () {
+  data = {
+    name: tank.name,
+    landmineAmount: tank.amountOfLandmines,
+    blueBombAmount: tank.blueBombAmount,
+    tripodAmount: tank.tripodAmount,
+    pulsesAmount: tank.pulsesAmount
+  }
+  socket.emit("save-user-data", data);
+}, 2000);
 
 //add tank on new connection
 socket.on("newConnected", function (len) {
@@ -310,9 +323,15 @@ socket.on("blue-bomb-explode", function (data) {
 //this is to update the colours
 socket.on("initial-update", function (data) {
   for (var i = 0; i < otherTanks.length; i++) {
-    otherTanks[i].col = data[i].col;
+    otherTanks[i].col = data.t[i].col;
     otherTanks[i].loadGun();
     otherTanks[i].loadBody();
+  }
+  if(data.name == name){
+    tank.amountOfLandmines = data.landmineAmount;
+    tank.blueBombAmount = data.blueBombAmount;
+    tank.tripodAmount = data.tripodAmount;
+    tank.pulsesAmount = data.pulsesAmount;
   }
 })
 
@@ -348,7 +367,7 @@ socket.on("reset-health", function () {
   tank.blueBombAmount += 2;
   tank.amountOfLandmines += 3;
   tank.pulsesAmount += 4;
-})
+});
 
 //Create Array of held down keys
 var keys = []
