@@ -125,7 +125,7 @@ function Tank(x, y, id) {
         this.x = random(width);
         this.y = random(height);
         deathData = {
-          name: this.name.toLowerCase(),
+          name: this.name,
           killer: killerName
         }
         socket.emit("death", deathData);
@@ -235,7 +235,7 @@ function Tank(x, y, id) {
 function Bullet(x, y, d, owner, type) {
   this.x = x;
   this.y = y;
-  this.speed = 4;
+  this.speed = 5;
   this.dir = PI+d;
   this.size = type;
 
@@ -510,9 +510,9 @@ function Pulse(x, y) {
   this.y = y;
   this.colour = color(0, 255, 150);
   this.use = function () {
-    explosions.push(new Explosion(this.x, this.y, 10, 40, 12, this.colour));
+    explosions.push(new Explosion(this.x, this.y, 10, 35, 11, this.colour));
     var d = dist(this.x, this.y, tank.x, tank.y);
-    if(d<200 && d>2){
+    if(d<120 && d>2){
       var flingDir = 0;
       var x = tank.x - this.x;
       var y = tank.y - this.y;
@@ -521,8 +521,8 @@ function Pulse(x, y) {
       }else {
         flingDir = PI-atan(x/y);
       }
-      tank.x += (200-d)*sin(PI - flingDir);
-      tank.y += (200-d)*cos(PI - flingDir);
+      tank.x += (120-d)*sin(PI - flingDir);
+      tank.y += (120-d)*cos(PI - flingDir);
     }
   }
 }

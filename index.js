@@ -146,8 +146,12 @@ io.on('connection', function (socket) {
 
   //when a client dies
   socket.on("death", function (deathData) {
+    if (deathData.name == deathData.killer) {
+      return;
+    }
+
     for (var i = 0; i < tanks.length; i++) {
-      if (tanks[i].name.toLowerCase() == deathData.killer.toLowerCase()) {
+      if (tanks[i].name == deathData.killer) {
         io.to(tanks[i].id).emit("reset-health");
       }
     }

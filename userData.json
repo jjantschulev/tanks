@@ -1,13 +1,1 @@
-[{
-  "name": "Jordan",
-  "landmineAmount": 10,
-  "blueBombAmount": 4,
-  "tripodAmount": 3,
-  "pulsesAmount": 14
-}, {
-  "name": "kraken",
-  "landmineAmount": 7,
-  "blueBombAmount": 3,
-  "tripodAmount": 1,
-  "pulsesAmount": 7
-}]
+[{"name":"Jordan","landmineAmount":28,"blueBombAmount":22,"tripodAmount":0,"pulsesAmount":41},{"name":"kraken","landmineAmount":10,"blueBombAmount":3,"tripodAmount":1,"pulsesAmount":5}]
