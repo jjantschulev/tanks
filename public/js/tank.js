@@ -235,7 +235,7 @@ function Tank(x, y, id) {
 function Bullet(x, y, d, owner, type) {
   this.x = x;
   this.y = y;
-  this.speed = 5;
+  this.speed = 4.5;
   this.dir = PI+d;
   this.size = type;
 
@@ -249,7 +249,7 @@ function Bullet(x, y, d, owner, type) {
 
   this.show = function () {
 
-    fill(0);
+    fill(BULLET_COLOUR);
     noStroke();
     ellipse(this.x, this.y, this.size, this.size);
   }
@@ -276,7 +276,7 @@ function Block(x, y, w, h) {
 
   this.show = function () {
     noStroke();
-    fill(51);
+    fill(WALL_COLOR);
     rect(this.x, this.y, this.width, this.height);
   }
 
@@ -442,7 +442,7 @@ function BlueBomb(x, y, n) {
   this.x = x;
   this.y = y;
   this.size = 15;
-  this.col = color(245, 245, 245); //color(70, 167, 242);
+  this.col = MINE_COLOR //color(70, 167, 242);
   this.ownerName = n;
 
   this.use = function () {

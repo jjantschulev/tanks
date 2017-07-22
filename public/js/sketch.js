@@ -1,3 +1,8 @@
+var THEME = "light";
+var WALL_COLOR, MINE_COLOR, BACKGROUND_IMAGE, BULLET_COLOUR;
+
+theme(THEME);
+
 //setup color
 var myColor = getRandomColor();
 
@@ -29,12 +34,16 @@ function setup() {
   socket.emit("newWorld");
 
   frameRate(60);
+
+  BACKGROUND_IMAGE = loadImage("/assets/camo.jpg");
 }
 
 function draw() {
   background(255);
 
-
+  if(THEME == "dark"){
+    image(BACKGROUND_IMAGE, 0, 0, width, height);
+  }
 
   //show and update blocks
   for (var i = 0; i < blocks.length; i++) {
@@ -455,5 +464,33 @@ function createBlocks(index) {
       blocks.push(new Block(500, 350, 20, 150));
       blocks.push(new Block(300, 200, 20, 200));
       break;
+  }
+}
+
+function theme(t) {
+  THEME = t;
+  if(THEME == "dark"){
+    document.body.style.backgroundColor = "black";
+
+    WALL_COLOR = "rgb(0, 119, 17)"
+    BULLET_COLOUR = "rgb(200, 0, 0)"
+    MINE_COLOR = "rgb(10,10,10)"
+
+    var chat=document.getElementById("chat");
+    var clone=chat.cloneNode(true);
+    clone.setAttribute('src',"http://jantschulev.ddns.net:3001");
+    chat.parentNode.replaceChild(clone,chat)
+  }else{
+    document.body.style.backgroundColor = "rgb(245,245,245)";
+
+    WALL_COLOR = "rgb(51,51,51)"
+    BULLET_COLOUR = "rgb(51,51,51)"
+    MINE_COLOR = "rgb(248,248,248)"
+
+    var chat=document.getElementById("chat");
+    var clone=chat.cloneNode(true);
+    clone.setAttribute('src',"http://jantschulev.ddns.net:3001/?=w");
+    chat.parentNode.replaceChild(clone,chat)
+
   }
 }
