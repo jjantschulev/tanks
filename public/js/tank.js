@@ -39,11 +39,20 @@ function Tank(x, y, id) {
 
   //load correct images functions
   this.loadGun = function () {
-    this.gun  = loadImage("/assets/gun.png");;
+    if(THEME == "dark"){
+      this.gun  = loadImage("/assets/dark_gun.png");;
+    }else{
+      this.gun  = loadImage("/assets/gun.png");;
+    }
   }
   this.loadBody = function () {
-    this.body = loadImage("/assets/"+this.col+"_body.png");
     // this.greyBody = loadImage("/assets/"+this.col+"_body_grey.png");
+    if(THEME == "dark"){
+      this.body = loadImage("/assets/dark_body.png");
+    }else{
+      this.body = loadImage("/assets/"+this.col+"_body.png");
+    }
+
   }
 
 
