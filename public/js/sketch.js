@@ -6,10 +6,17 @@ if(window.location.href.substring(window.location.href.length-5) == "#dark"){
   THEME = "light"
 }
 
-var WALL_COLOR, MINE_COLOR, BACKGROUND_IMAGE, BULLET_COLOUR;
+var WALL_COLOR, MINE_COLOR, BACKGROUND_IMAGE, BULLET_COLOUR, NAME_COLOUR;
 
 //setup color
+var tankColours = ['yellow', 'red', 'green', 'purple'];
 var myColor = getRandomColor();
+var chosenColour = Cookies.get('tankColour');
+if(chosenColour == undefined){
+  chosenColour = "";
+}else{
+  myColor = chosenColour;
+}
 
 //initialise tank and bullets array
 var tank;
@@ -24,9 +31,11 @@ var landmines = [];
 var tripods = [];
 var blueBombs = [];
 
+var previewImages;
+
 //setup name from cookies. this matches username in kraken chat
 var name = Cookies.get('name');
-if(name == "undefined"){
+if(name == undefined){
   name = prompt("What is you name");
   Cookies.set('name', name, {expires: 1});
 }
@@ -39,10 +48,12 @@ function setup() {
   socket.emit("newWorld");
 
   theme(THEME);
-
   frameRate(60);
+  // yellow = loadImage("/assets/yellow_tank.png");
+
 
   BACKGROUND_IMAGE = loadImage("/assets/camo.jpg");
+  previewImages = [loadImage("/assets/yellow_tank.png"), loadImage("/assets/red_tank.png"), loadImage("/assets/green_tank.png"),loadImage("/assets/purple_tank.png")];
 }
 
 function draw() {
@@ -128,9 +139,9 @@ function draw() {
 
   //show you died screen
 
-  if(tank.deactivated){
+  if(tank.deactivated && !chosenColour == ""){
     var seconds = tank.deactivatedTimer / 60;
-    fill(0, 97);
+    fill(0, 150);
     rect(0, 0, width, height);
     fill(255);
     textAlign(CENTER, CENTER);
@@ -138,6 +149,36 @@ function draw() {
     text("YOU DIED", width/2, height/2 - 30);
     textSize(25);
     text("respawning in " + Math.ceil(seconds) + " seconds.", width/2, height/2 + 30);
+  }
+  if (chosenColour == "") {
+    tank.deactivatedTimer = 4;
+    fill(255, 210);
+    rect(0, 0, width, height);
+    fill(0);
+    textAlign(CENTER, CENTER);
+    textSize(25);
+    text("Please choose you tank colour", width/2, height/2 - 30);
+    imageMode(CENTER);
+    if("THEME" == "dark"){
+
+    }else{
+      for (var i = 0; i < previewImages.length; i++) {
+        var x=(i*(width/4))+width/8;
+        var y=height/2 + 100;
+        var d = dist(mouseX*0.667, mouseY*0.667, x, y);
+        if(d<150){
+          rectMode(CENTER);
+          fill(100, 100-d/1.2);
+          rect(x, y, constrain(d*3, 150, 600), constrain(d*3, 150, 600), 20);
+          rectMode(CORNER);
+          if (mouseIsPressed) {
+            chosenColour = tankColours[i];
+            Cookies.set('tankColour', tankColours[i], {expires: 365});
+          }
+        }
+        image(previewImages[i], x, y, width/4, height/4);
+      }
+    }
   }
 
 }
@@ -221,8 +262,7 @@ function onKeydownLogic(currentKey) {
 
 //get a random tank colour
 function getRandomColor() {
-  var colors = ["purple", "red", "green", "yellow"];
-  var c = colors[Math.floor(Math.random()*4)];
+  var c = tankColours[Math.floor(Math.random()*tankColours.length)];
   return c;
 }
 
@@ -379,10 +419,10 @@ socket.on("remove_health_packet", function (index) {
 
 socket.on("reset-health", function () {
   tank.health = 100;
-  tank.tripodAmount += 1;
+  if(random()<0.7){tank.tripodAmount += 1;}
   tank.blueBombAmount += 2;
-  tank.amountOfLandmines += 3;
-  tank.pulsesAmount += 4;
+  tank.amountOfLandmines += 2;
+  tank.pulsesAmount += 2;
 });
 
 //Create Array of held down keys
@@ -482,6 +522,7 @@ function theme(t) {
     WALL_COLOR = "rgb(0, 119, 17)"
     BULLET_COLOUR = "rgb(200, 0, 0)"
     MINE_COLOR = "rgb(10,10,10)"
+    NAME_COLOUR = "rgb(255, 255, 255)"
 
     var chat=document.getElementById("chat");
     var clone=chat.cloneNode(true);
@@ -495,6 +536,7 @@ function theme(t) {
     WALL_COLOR = "rgb(51,51,51)"
     BULLET_COLOUR = "rgb(51,51,51)"
     MINE_COLOR = "rgb(248,248,248)"
+    NAME_COLOUR = "rgb(51,51,51)"
 
     var chat=document.getElementById("chat");
     var clone=chat.cloneNode(true);

@@ -21,7 +21,6 @@ function Tank(x, y, id) {
   this.bulletType = 3;
 
   this.gunReloaded = 0;
-  this.landmineReloaded = 3000;
   this.amountOfLandmines = 1;
   this.tripodAmount = 0;
   this.blueBombAmount = 1;
@@ -85,16 +84,14 @@ function Tank(x, y, id) {
       return;
     }
 
+    //max count for stuff
+    if (this.tripodAmount > 3) {this.tripodAmount = 3;}
+    if (this.amountOfLandmines > 10) {this.amountOfLandmines = 10;}
+    if (this.blueBombAmount > 8) {this.blueBombAmount = 8;}
+    if(this.pulsesAmount > 10) {this.pulsesAmount = 10;}
+
     //reload gun
-    if (this.tripodAmount > 3) {
-      this.tripodAmount = 3;
-    }
     this.gunReloaded --;
-    this.landmineReloaded --;
-    if(this.landmineReloaded < 0){
-      this.landmineReloaded = 3000;
-      this.amountOfLandmines ++;
-    }
 
     //eat health packets
     for (var i = 0; i < healthPackets.length; i++) {
@@ -168,7 +165,7 @@ function Tank(x, y, id) {
     }
 
     //show name
-    fill(100);
+    fill(NAME_COLOUR);
     textSize(8);
     textAlign(CENTER);
     text(this.name, 0, -40);
