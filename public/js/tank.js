@@ -111,7 +111,7 @@ function Tank(x, y, id) {
         this.health -= bullets[i].type; //subtract health
         explosions.push(new Explosion(bullets[i].x, bullets[i].y, bullets[i].size, 20, 1, color(255,150,0)));//make Explosion
         //check if we died
-        this.checkDeath(bullets[i].owner.toLowerCase());
+        this.checkDeath(bullets[i].owner);
 
         //move tank on bullet hit
         if (bullets[i].type == 20) {
