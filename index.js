@@ -162,6 +162,11 @@ io.on('connection', function (socket) {
   //when a client dies
   socket.on("death", function (deathData) {
     if (deathData.name == deathData.killer) {
+      for (var i = 0; i < tanks.length; i++) {
+        if (tanks[i].name == deathData.killer) {
+          io.to(tanks[i].id).emit("suicide");
+        }
+      }
       return;
     }
 

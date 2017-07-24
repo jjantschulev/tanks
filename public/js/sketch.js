@@ -208,11 +208,11 @@ function keyPressLogic(currentKey, t) {
     //d
     t.dir+=0.05;
   }
-  if(currentKey == 37){
+  if(currentKey == 37  || currentKey == 81){
     //LEFT ARROW
     t.gunDir-=0.028;
   }
-  if(currentKey == 39){
+  if(currentKey == 39  || currentKey == 69){
     //RIGHT ARROW
     t.gunDir+=0.028;
   }
@@ -443,6 +443,14 @@ socket.on("reset-health", function () {
   tank.amountOfLandmines += 2;
   tank.pulsesAmount += 2;
 });
+
+socket.on("suicide", function () {
+  tank.health = 70;
+  tank.tripodAmount -= 1;
+  tank.blueBombAmount -= 2;
+  tank.amountOfLandmines -= 2;
+  tank.pulsesAmount -= 2;
+})
 
 //Create Array of held down keys
 var keys = []
