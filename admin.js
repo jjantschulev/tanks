@@ -1,6 +1,6 @@
 var express = require('express');
 var app = express();
-var server = app.listen(5000);
+var server = app.listen(3013);
 app.use(express.static('admin'));
 var fs = require('fs');
 
@@ -14,7 +14,7 @@ io.on('connection', function (socket) {
     socket.emit("sync-ammo", userData)
     socket.broadcast.emit("sync-ammo", userData)
   }, 3000);
-  
+
   setInterval(function () {
     scoresData = JSON.parse(fs.readFileSync('scores.json', 'utf8'));
     socket.emit("sync-scores", scoresData)

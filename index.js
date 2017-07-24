@@ -30,6 +30,11 @@ io.on('connection', function (socket) {
     socket.broadcast.emit("update", tanks)
   }, 40);
 
+  setTimeout(function () {
+    socket.emit("color", tanks);
+    socket.broadcast.emit("color", tanks);
+  }, 1000)
+
   //send health packets to clients
   setInterval(function () {
     if(Math.random() < 0.001){
@@ -69,7 +74,11 @@ io.on('connection', function (socket) {
   //handout new world
   socket.on("newWorld", function (change) {
     if (change) {
-      world = Math.floor(Math.random()*6);
+      var nw = Math.floor(Math.random()*6);
+      while (nw == world) {
+        nw = Math.floor(Math.random()*6);
+      }
+      world = nw
     }
     socket.emit("newWorld", world)
     socket.broadcast.emit("newWorld", world);

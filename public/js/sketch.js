@@ -175,7 +175,7 @@ function draw() {
           fill(100, 100-d/1.2);
           rect(x, y, constrain(d*3, 150, 600), constrain(d*3, 150, 600), 20);
           rectMode(CORNER);
-          if (mouseIsPressed) {
+          if (mouseIsPressed && d < 60) {
             chosenColour = tankColours[i];
             Cookies.set('tankColour', tankColours[i], {expires: 365});
             window.location.reload();
@@ -271,29 +271,35 @@ function getRandomColor() {
   return c;
 }
 
+function w() {
+  socket.emit("newWorld", true);
+}
+
+
+
 function showAmmoInfo() {
-  for (var i = 1; i < tank.pulsesAmount+1; i++) {
+  for (var i = 0; i < tank.pulsesAmount; i++) {
     noStroke();
     fill(0, 255, 150);
-    ellipse(8, i*8, 6, 6);
+    rect(0, i*4, 4, 4);
   }
 
-  for (var i = 1; i < tank.amountOfLandmines+1; i++) {
+  for (var i = 0; i < tank.amountOfLandmines; i++) {
     noStroke();
     fill(255, 150, 0);
-    ellipse(16, i*8, 6, 6);
+    rect(4, i*4, 4, 4);
   }
 
-  for (var i = 1; i < tank.blueBombAmount+1; i++) {
+  for (var i = 0; i < tank.blueBombAmount; i++) {
     noStroke();
     fill(70, 167, 242);
-    ellipse(24, i*8, 6, 6);
+    rect(8, i*4, 4, 4);
   }
 
-  for (var i = 1; i < tank.tripodAmount+1; i++) {
+  for (var i = 0; i < tank.tripodAmount; i++) {
     noStroke();
     fill(51);
-    ellipse(32, i*8, 6, 6);
+    rect(12, i*4, 4, 4);
   }
 }
 
@@ -383,7 +389,7 @@ socket.on("blue-bomb-explode", function (data) {
 
 //this is to update the colours
 socket.on("initial-update", function (data) {
-  for (var i = 0; i < otherTanks.length; i++) {
+  for (var i = 0; i < data.t.length; i++) {
     otherTanks[i].col = data.t[i].col;
     otherTanks[i].loadGun();
     otherTanks[i].loadBody();
@@ -393,6 +399,14 @@ socket.on("initial-update", function (data) {
     tank.blueBombAmount = data.blueBombAmount;
     tank.tripodAmount = data.tripodAmount;
     tank.pulsesAmount = data.pulsesAmount;
+  }
+});
+
+socket.on("color", function (tanks) {
+  for (var i = 0; i < tanks.length; i++) {
+    otherTanks[i].col = tanks[i].col;
+    otherTanks[i].loadGun();
+    otherTanks[i].loadBody();
   }
 })
 

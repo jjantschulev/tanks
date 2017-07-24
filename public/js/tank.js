@@ -16,6 +16,7 @@ function Tank(x, y, id) {
   //visual vairables
   this.name = name;
   this.col = myColor;
+  this.darkCol = "green";
   this.size = 40;
   this.health = 100;
   this.bulletType = 3;
@@ -47,7 +48,7 @@ function Tank(x, y, id) {
   this.loadBody = function () {
     // this.greyBody = loadImage("/assets/"+this.col+"_body_grey.png");
     if(THEME == "dark"){
-      this.body = loadImage("/assets/dark_body.png");
+      this.body = loadImage("/assets/dark_"+this.darkCol+"_body.png");
     }else{
       this.body = loadImage("/assets/"+this.col+"_body.png");
     }

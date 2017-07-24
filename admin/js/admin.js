@@ -1,5 +1,7 @@
-var socket = io("localhost:3012");
-var adminSocket = io('localhost:5000')
+var socket = io("jantschulev.ddns.net:3012");
+var adminSocket = io('jantschulev.ddns.net:3013')
+// var socket = io("localhost:3012");
+// var adminSocket = io('localhost:3013')
 
 function changeWorld() {
   socket.emit("newWorld", true);
