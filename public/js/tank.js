@@ -106,7 +106,6 @@ function Tank(x, y, id) {
     for (var i = 0; i < bullets.length; i++) {
       if(dist(bullets[i].x, bullets[i].y, this.x, this.y)<this.size/2){
         this.health -= bullets[i].type; //subtract health
-        explosions.push(new Explosion(bullets[i].x, bullets[i].y, bullets[i].size, 20, 1, color(255,150,0)));//make Explosion
         //check if we died
         this.checkDeath(bullets[i].owner);
 
@@ -114,9 +113,11 @@ function Tank(x, y, id) {
         if (bullets[i].type == 20) {
           this.x += 5*bullets[i].type*sin(bullets[i].dir);
           this.y -= 5*bullets[i].type*cos(bullets[i].dir);
+          explosions.push(new Explosion(bullets[i].x, bullets[i].y, bullets[i].size, 30, 5, color(255,200,0)));//make Explosion
         }else {
           this.x += 0.5*bullets[i].type*sin(bullets[i].dir);
           this.y -= 0.5*bullets[i].type*cos(bullets[i].dir);
+          explosions.push(new Explosion(bullets[i].x, bullets[i].y, bullets[i].size, 20, 1, color(255,200,0)));//make Explosion
         }
         bullets.splice(i,1);
 
@@ -135,7 +136,7 @@ function Tank(x, y, id) {
           killer: killerName
         }
         socket.emit("death", deathData);
-        socket.emit("newWorld");
+        // socket.emit("newWorld");
         this.deactivatedTimer = 600;
       }
     }
@@ -305,7 +306,7 @@ function Block(x, y, w, h) {
     //delete bullets if they are inside a block
     for (var i = 0; i < bullets.length; i++) {
       if(bullets[i].x > this.x && bullets[i].x < this.x2 && bullets[i].y > this.y && bullets[i].y < this.y2){
-        explosions.push(new Explosion(bullets[i].x, bullets[i].y, bullets[i].size, 15, 0.8, color(255,150,0)));//make Explosion
+        explosions.push(new Explosion(bullets[i].x, bullets[i].y, bullets[i].size, 15, 0.8, color(255,200,0)));//make Explosion
         bullets.splice(i, 1);
       }
     }
@@ -318,7 +319,7 @@ function Tripod(x, y, owner) {
   this.y = y;
   this.size = 30;
   this.owner = owner;
-  this.timer = 1000;
+  this.timer = 1500;
   this.dir = 0;
   this.reload = 0;
 
@@ -368,7 +369,7 @@ function Tripod(x, y, owner) {
     if (otherTanks.length > 0) {
       for (var i = 0; i < otherTanks.length; i++) {
         var newD = dist(otherTanks[i].x, otherTanks[i].y, this.x, this.y);
-        if(newD < d && otherTanks[i].name != this.owner){
+        if(newD < d && otherTanks[i].name != this.owner && !otherTanks[i].deactivated){
           d = newD;
           ct = otherTanks[i];
         }
@@ -383,11 +384,11 @@ function Tripod(x, y, owner) {
         x: this.x+22*sin(PI - this.dir),
         y: this.y+22*cos(PI - this.dir),
         dir: PI+this.dir,
-        owner: "tripod",
+        owner: tank.name,
         type: 1
       }
       socket.emit("shot", bulletInfo); //send new bullet data to server
-      this.reload = 15;
+      this.reload = 12;
     }
   }
 }

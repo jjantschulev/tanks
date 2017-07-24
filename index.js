@@ -15,6 +15,7 @@ var io = require('socket.io')(server);
 var tanks = [];
 var scores = JSON.parse(fs.readFileSync('scores.json', 'utf8'));
 var userData = JSON.parse(fs.readFileSync('userData.json', 'utf8'));
+var world = Math.floor(Math.random()*6);
 
 //when new user connects:
 io.on('connection', function (socket) {
@@ -58,15 +59,20 @@ io.on('connection', function (socket) {
     setTimeout(function () {
       socket.emit("initial-update", data)
       socket.broadcast.emit("initial-update", data)
+
+      socket.emit("newWorld", world)
+      socket.broadcast.emit("newWorld", world);
     }, 100);
 
   })
 
   //handout new world
-  socket.on("newWorld", function () {
-    var blocksId = Math.floor(Math.random()*6)
-    socket.emit("newWorld", blocksId)
-    socket.broadcast.emit("newWorld", blocksId);
+  socket.on("newWorld", function (change) {
+    if (change) {
+      world = Math.floor(Math.random()*6);
+    }
+    socket.emit("newWorld", world)
+    socket.broadcast.emit("newWorld", world);
   })
 
   // sync data from client tank with server tanks array

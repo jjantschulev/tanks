@@ -18,6 +18,10 @@ if(chosenColour == undefined){
   myColor = chosenColour;
 }
 
+if(THEME == "dark"){
+  chosenColour = "dark"
+}
+
 //initialise tank and bullets array
 var tank;
 var otherTanks = [];
@@ -35,7 +39,7 @@ var previewImages;
 
 //setup name from cookies. this matches username in kraken chat
 var name = Cookies.get('name');
-if(name == undefined){
+if(name == "undefined"){
   name = prompt("What is you name");
   Cookies.set('name', name, {expires: 1});
 }
@@ -45,14 +49,14 @@ function setup() {
   //create users tank and tell server about new connected user
   tank = new Tank(random(width), random(height), "");
   socket.emit("newConnected", name);
-  socket.emit("newWorld");
+  // socket.emit("newWorld");
 
   theme(THEME);
   frameRate(60);
   // yellow = loadImage("/assets/yellow_tank.png");
 
 
-  BACKGROUND_IMAGE = loadImage("/assets/camo.jpg");
+  BACKGROUND_IMAGE = loadImage("/assets/camo"+Math.ceil(Math.random()*3)+".jpg");
   previewImages = [loadImage("/assets/yellow_tank.png"), loadImage("/assets/red_tank.png"), loadImage("/assets/green_tank.png"),loadImage("/assets/purple_tank.png")];
 }
 
@@ -174,6 +178,7 @@ function draw() {
           if (mouseIsPressed) {
             chosenColour = tankColours[i];
             Cookies.set('tankColour', tankColours[i], {expires: 365});
+            window.location.reload();
           }
         }
         image(previewImages[i], x, y, width/4, height/4);
@@ -218,7 +223,7 @@ function keyPressLogic(currentKey, t) {
       if(tank.bulletType == 20){tank.gunReloaded = 280}
       if(tank.bulletType == 10){tank.gunReloaded = 100}
       if(tank.bulletType == 3){tank.gunReloaded = 18}
-      if(tank.bulletType == 1){tank.gunReloaded = 8}
+      if(tank.bulletType == 1){tank.gunReloaded = 5}
     }
   }
 }
@@ -525,9 +530,11 @@ function theme(t) {
     NAME_COLOUR = "rgb(255, 255, 255)"
 
     var chat=document.getElementById("chat");
-    var clone=chat.cloneNode(true);
-    clone.setAttribute('src',"http://jantschulev.ddns.net:3001");
-    chat.parentNode.replaceChild(clone,chat);
+    if(chat != null){
+      var clone=chat.cloneNode(true);
+      clone.setAttribute('src',"http://jantschulev.ddns.net:3001");
+      chat.parentNode.replaceChild(clone,chat);
+    }
     tank.loadGun();
     tank.loadBody();
   }else{
@@ -539,9 +546,11 @@ function theme(t) {
     NAME_COLOUR = "rgb(51,51,51)"
 
     var chat=document.getElementById("chat");
-    var clone=chat.cloneNode(true);
-    clone.setAttribute('src',"http://jantschulev.ddns.net:3001/?=w");
-    chat.parentNode.replaceChild(clone,chat)
+    if(chat != null){
+      var clone=chat.cloneNode(true);
+      clone.setAttribute('src',"http://jantschulev.ddns.net:3001/?=w");
+      chat.parentNode.replaceChild(clone,chat)
+    }
 
     tank.loadGun();
     tank.loadBody();
