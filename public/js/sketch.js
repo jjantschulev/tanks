@@ -36,12 +36,17 @@ var tripods = [];
 var blueBombs = [];
 
 var previewImages;
+var tankDeathExplosions = [];
 
 //setup name from cookies. this matches username in kraken chat
 var name = Cookies.get('name');
 if(name == "undefined"){
   name = prompt("What is you name");
   Cookies.set('name', name, {expires: 1});
+}
+
+function preload() {
+  previewImages = [loadImage("/assets/yellow_tank.png"), loadImage("/assets/red_tank.png"), loadImage("/assets/green_tank.png"),loadImage("/assets/purple_tank.png")];
 }
 
 function setup() {
@@ -57,7 +62,6 @@ function setup() {
 
 
   BACKGROUND_IMAGE = loadImage("/assets/camo"+Math.ceil(Math.random()*2)+".jpg");
-  previewImages = [loadImage("/assets/yellow_tank.png"), loadImage("/assets/red_tank.png"), loadImage("/assets/green_tank.png"),loadImage("/assets/purple_tank.png")];
 }
 
 function draw() {
@@ -130,6 +134,10 @@ function draw() {
     if(explosions[i].timer < 0){
       explosions.splice(i, 1);
     }
+  }
+
+  for (var i = 0; i < tankDeathExplosions.length; i++) {
+    tankDeathExplosions[i].show();
   }
 
   //respond to held down keys events
@@ -271,6 +279,10 @@ function onKeydownLogic(currentKey) {
     if (event.which == 50){tank.bulletType = 3;}
     if (event.which == 51){tank.bulletType = 10;}
     if (event.which == 52){tank.bulletType = 20;}
+  }
+
+  if(currentKey == 90){
+    //z
   }
 }
 
@@ -459,7 +471,17 @@ socket.on("suicide", function () {
   tank.blueBombAmount -= 2;
   tank.amountOfLandmines -= 2;
   tank.pulsesAmount -= 2;
+});
+
+socket.on("tankDeath", function (deathData) {
+  for (var i = 0; i < otherTanks.length; i++) {
+    if(otherTanks[i].name == deathData.name){
+      tankDeathExplosions.push(new tankDeathExplosion(otherTanks[i].x, otherTanks[i].y));
+    }
+  }
 })
+
+
 
 //Create Array of held down keys
 var keys = []

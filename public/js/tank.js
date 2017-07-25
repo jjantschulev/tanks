@@ -561,3 +561,21 @@ function Explosion(x, y, s, time, sInc, colour) {
     ellipse(this.x, this.y, this.size, this.size);
   }
 }
+
+function tankDeathExplosion(x, y) {
+  this.x = x;
+  this.y = y;
+  this.timer = 72;
+  this.img = loadGif("/assets/explosion.gif")
+
+  this.show = function () {
+
+    imageMode(CENTER);
+    image(this.img, this.x, this.y, 50, 50);
+    imageMode(CORNER);
+    this.timer --;
+    if(this.timer <= 0){
+      tankDeathExplosions.splice(tankDeathExplosions.indexOf(this), 1);
+    }
+  }
+}
