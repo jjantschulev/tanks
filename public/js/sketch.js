@@ -46,6 +46,7 @@ if(name == "undefined"){
 }
 
 function preload() {
+  BACKGROUND_IMAGE = loadImage("/assets/camo"+Math.ceil(Math.random()*2)+".jpg");
   previewImages = [loadImage("/assets/yellow_tank.png"), loadImage("/assets/red_tank.png"), loadImage("/assets/green_tank.png"),loadImage("/assets/purple_tank.png")];
 }
 
@@ -54,14 +55,9 @@ function setup() {
   //create users tank and tell server about new connected user
   tank = new Tank(random(width), random(height), "");
   socket.emit("newConnected", name);
-  // socket.emit("newWorld");
 
   theme(THEME);
   frameRate(60);
-  // yellow = loadImage("/assets/yellow_tank.png");
-
-
-  BACKGROUND_IMAGE = loadImage("/assets/camo"+Math.ceil(Math.random()*2)+".jpg");
 }
 
 function draw() {

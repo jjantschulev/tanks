@@ -143,7 +143,7 @@ function Tank(x, y, id) {
           killer: killerName
         }
         socket.emit("death", deathData);
-        // socket.emit("newWorld");
+        socket.emit("newWorld", true);
         this.deactivatedTimer = 600;
       }
     }
