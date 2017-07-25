@@ -176,6 +176,8 @@ io.on('connection', function (socket) {
       }
     }
 
+    console.log(deathData.killer + " rekt " + deathData.name);
+
     // console.log(data.killer +" has killed " + data.name);
     var foundKillerMatch = false;
     var foundLostMatch = false;

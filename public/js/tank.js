@@ -18,10 +18,13 @@ function Tank(x, y, id) {
   this.col = myColor;
   this.darkCol = "green";
   this.size = 40;
-  this.health = 100;
+  this.health = 80;
   this.bulletType = 3;
 
-  this.gunReloaded = 0;
+  this.gunReloaded1 = 0;
+  this.gunReloaded2 = 0;
+  this.gunReloaded3 = 0;
+  this.gunReloaded4 = 0;
   this.amountOfLandmines = 1;
   this.tripodAmount = 0;
   this.blueBombAmount = 1;
@@ -92,7 +95,10 @@ function Tank(x, y, id) {
     if(this.pulsesAmount > 10) {this.pulsesAmount = 10;}
 
     //reload gun
-    this.gunReloaded --;
+    this.gunReloaded1 --;
+    this.gunReloaded2 --;
+    this.gunReloaded3 --;
+    this.gunReloaded4 --;
 
     //eat health packets
     for (var i = 0; i < healthPackets.length; i++) {
@@ -161,10 +167,9 @@ function Tank(x, y, id) {
     rect(0, -35, map(this.health, 0, 100, 0, 35), 2);
 
     //show gun reloading bar
-    if(this.gunReloaded >= 0){
-      fill(100);
-      rect(0, -30, map(this.gunReloaded, 0, 120, 0, 30), 1);
-    }
+    fill(NAME_COLOUR)
+    if(this.gunReloaded3 > 0){rect(0, -28, map(this.gunReloaded3, 0, 280, 0, 35), 1);}
+    if(this.gunReloaded4 > 0){rect(0, -31, map(this.gunReloaded4, 0, 420, 0, 35), 1);}
 
     //show name
     fill(NAME_COLOUR);

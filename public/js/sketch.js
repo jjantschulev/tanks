@@ -56,7 +56,7 @@ function setup() {
   // yellow = loadImage("/assets/yellow_tank.png");
 
 
-  BACKGROUND_IMAGE = loadImage("/assets/camo"+Math.ceil(Math.random()*3)+".jpg");
+  BACKGROUND_IMAGE = loadImage("/assets/camo"+Math.ceil(Math.random()*2)+".jpg");
   previewImages = [loadImage("/assets/yellow_tank.png"), loadImage("/assets/red_tank.png"), loadImage("/assets/green_tank.png"),loadImage("/assets/purple_tank.png")];
 }
 
@@ -218,12 +218,21 @@ function keyPressLogic(currentKey, t) {
   }
   if (currentKey == 32) {
     //SPACE BAR
-    if (tank.gunReloaded <= 0) {
+    if(tank.gunReloaded1 <= 0 && tank.bulletType == 1){
       tank.fire();
-      if(tank.bulletType == 20){tank.gunReloaded = 280}
-      if(tank.bulletType == 10){tank.gunReloaded = 100}
-      if(tank.bulletType == 3){tank.gunReloaded = 18}
-      if(tank.bulletType == 1){tank.gunReloaded = 5}
+      tank.gunReloaded1 = 5
+    }
+    if(tank.gunReloaded2 <= 0 && tank.bulletType == 3){
+      tank.fire();
+      tank.gunReloaded2 = 18
+    }
+    if(tank.gunReloaded3 <= 0 && tank.bulletType == 10){
+      tank.fire();
+      tank.gunReloaded3 = 100
+    }
+    if(tank.gunReloaded4 <= 0 && tank.bulletType == 20){
+      tank.fire();
+      tank.gunReloaded4 = 420
     }
   }
 }
