@@ -211,6 +211,8 @@ io.on('connection', function (socket) {
       }
       scores.push(newPerson);
     }
+    socket.emit("update-scores", scores)
+    socket.broadcast.emit("update-scores", scores)
     dataToWrite = JSON.stringify(scores);
     fs.writeFile("scores.json", dataToWrite, function(err) {
       if(err) {
@@ -218,6 +220,11 @@ io.on('connection', function (socket) {
       }
     });
   });
+
+  socket.on("request-update-scores", function () {
+    socket.emit("update-scores", scores)
+    socket.broadcast.emit("update-scores", scores)
+  })
 
   socket.on("remove_health_packet", function (index) {
     socket.broadcast.emit("remove_health_packet", index)
